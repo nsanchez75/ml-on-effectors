@@ -10,7 +10,7 @@ Code Example from website:
 curl -X POST --data "GENGEIPLEIRATTGAEVDTRAVTAVEMTEGTLGIFRLPEEDYTALENFRYNRVAGENWKPASTVIYVGGTYARLCAYAPYNSVEFKNSSLKTEAGLTMQTYAAEKDMRFAVSGGDEVWKKTPTANFELKRAYARLVLSVVRDATYPNTCKITKAKIEAFTGNIITANTVDISTGTEGSGTQTPQYIHTVTTGLKDGFAIGLPQQTFSGGVVLTLTVDGMEYSVTIPANKLSTFVRGTKYIVSLAVKGGKLTLMSDKILIDKDWAEVQTGTGGSGDDYDTSFN" https://api.esmatlas.com/foldSequence/v1/pdb/
 ```
 
-This doesn't work because ESMFold API has a limited amount of usage at a time. We havve to use Google Colab or ESMFold repository.
+This doesn't work because ESMFold API has a limited amount of usage at a time. We have to use Google Colab or ESMFold repository.
 
 ## Using ESMFold Colab
 
