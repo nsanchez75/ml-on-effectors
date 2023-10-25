@@ -2,7 +2,9 @@
 
 ## Running EffectorO
 
-Created a Conda environment `effectoro.yml` that can be used to run EffectorO
+Created a conda environment `effectoro.yml` that can be used to run EffectorO
+
+- Code to create conda environment: `conda env create -f [path/to/]effectoro.yml`
 
 Ran EffectorO on `B_lac-SF5.protein.fasta` to test it and it works
 

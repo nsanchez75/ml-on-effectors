@@ -9,6 +9,9 @@ import subprocess
 #
 #   Inputs: FASTA files outputted from EffectorO
 #   Outputs: PDB files of predicted protein folds in a directory
+#
+# WARNING: The ESMFold API has a limited amount of usage so make sure that you aren't testing a large 
+# FASTA file
 
 
 # check if arguments given
