@@ -2,7 +2,7 @@
 
 ## Using ESMFold API
 
-Created a Python program that tried to use the ESMFold API (https://esmatlas.com/about)
+Created a Python program that tried to use the ESMFold API (<https://esmatlas.com/about>)
 
 Code Example from website:
 
