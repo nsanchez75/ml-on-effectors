@@ -57,3 +57,16 @@ done <$file
 ```
 
 She also gathered all of the data, so I will look into her directory later and grab all of the data. I might change this code later if I find a better way to specifically grab the Bremia lactucae related pdf files.
+
+### 11/6/2023
+
+Here is the link for grabbing the AlphaFold metadata from BigQuery: <https://console.cloud.google.com/bigquery?p=bigquery-public-data&d=deepmind_alphafold&page=dataset&project=woven-precept-403918&ws=!1m4!1m3!3m2!1sbigquery-public-data!2sdeepmind_alphafold>
+
+I created a script that detects if the data produced by Kelsey had all the entry IDs extracted from BigQuery. It seems like some of the entry IDs were not found. I also created a SQL script in BigQuery that creates the protein sequences that relate to an AF entry ID. Here is the script:
+
+```SQL
+SELECT entryId, uniprotSequence FROM `bigquery-public-data.deepmind_alphafold.metadata`
+where taxId = 4779
+```
+
+I've added the output of the SQL entry in the appropriate dataset directory.
