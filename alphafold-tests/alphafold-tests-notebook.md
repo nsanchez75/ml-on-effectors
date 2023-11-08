@@ -11,7 +11,7 @@ TODO
 
 ## Experiments: Data and Results
 
-### Figuring Out AlphaFold & Google Cloud
+### Figuring Out How to Gather Data from AlphaFold
 
 (10/25/2023)
 
@@ -19,6 +19,8 @@ TODO
   - made sure to omit the '*' at the end of the sequences
   - didn't touch anything in the Colab (just did 'Run All' like it says to do in the Colab)
 - results found in 10/25/2023
+
+#### Exploring Google Cloud and BigQuery
 
 (11/1/2023)
 
@@ -47,6 +49,8 @@ Here is a screenshot of my SQL script in BigQuery where I managed to find all of
 
 ![Screenshot of BigQuery SQL script into metadata](notebook-images/image.png)
 
+#### Getting Data Through Kelsey Instead
+
 I downloaded the `alphafoldbulk.py` script that may help me download all of the sequences. Kelsey also sent me a bash script that is much simpler:
 
 ```bash
@@ -58,15 +62,17 @@ do
 done <$file
 ```
 
-She also gathered all of the data, so I will look into her directory later and grab all of the data. I might change this code later if I find a better way to specifically grab the Bremia lactucae related pdf files. For now, I will just grab the data she had gathered.
+She also gathered all of the data, so I will look into her directory later and grab all of the data. I might change this code later if I find a better way to specifically grab the Bremia lactucae related pdf files. For now, I will just grab the data she had gathered. I kept the data in the git-untracked `AF_db_data` directory in the lab server (kept it there because it is very large).
 
 (11/6/2023)
 
-- I created a script that detects if the data produced by Kelsey had all the entry IDs extracted from BigQuery. It seems like some of the entry IDs were not found.
+I created a script that detects if the data produced by Kelsey had all the entry IDs extracted from BigQuery. It seems like some of the entry IDs were not found.
 
-### Linking ORFs for B_lac-SF5 and AF predicted sequences thru BLAST
+**TODO:** figure out what happened to these missing entry IDs.
 
-(11/6/2023 updates)
+### Linking ORFs for B_lac-SF5 and AF predicted sequences thru BLAST (11/6/2023)
+
+(11/6/2023)
 
 Here is the link for grabbing the [AlphaFold metadata from BigQuery](https://console.cloud.google.com/bigquery?p=bigquery-public-data&d=deepmind_alphafold&page=dataset&project=woven-precept-403918&ws=!1m4!1m3!3m2!1sbigquery-public-data!2sdeepmind_alphafold).
 
@@ -109,7 +115,7 @@ makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -
 # -dbtype prot  : makes database a protein type
 ```
 
-The contents are logged in `B_lac-SF5_db_creation.log`:
+The contents are logged in `B_lac-SF5_db_creation.log` (remember to set the output of makeblastdb to a .log next time):
 
 ```text
 Building a new DB, current time: 11/06/2023 18:03:03
@@ -143,3 +149,53 @@ Here is a 3-line sample of what the file ends up looking like. By the way, for c
 | 0A484DY28_BRELC |Blac_SF5_v8_21_ORF306324_fr3 | 31.30 | 115 | 75 | 3 | 345 | 457 | 21 | 133 | 5e-12 | 65.522 |
 | A0A484DY28_BRELC | Blac_SF5_v8_270_ORF1603244_fr2 | 25.65 | 230 | 131 | 5 | 306 | 501 | 7 | 230 | 1e-11 | 65.538 |
 | A0A484DY28_BRELC | Blac_SF5_v8_80_ORF804847_fr3 | 40.79 | 76 | 41 | 2 | 373 | 445 | 4 | 78 | 4e-11 | 61.214 |
+
+### Analyzing Predited AF Sequences w/ EffectorO Prediction, RXLR, WY, CRN, SP, ... (11/8/2023 - )
+
+#### Linking Uniprot IDs and ORFs
+
+(11/8/2023)
+
+To analyze the AlphaFold sequences, I am creating a table that links Uniprot Accession IDs to their ORF sequence counterparts. For this, I am going to use the `awk` command on the file `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt` through the CLI. The result is in a file called `uniprot-id_to_ORF-blac-seq.txt`. Here is the code:
+
+```bash
+awk -F' ' '{print $1"\t"$2}' blastp_output_db_B_lac-SF5_q_blac-uniprot.txt > uniprot-id_to_ORF-blac-seq.txt
+```
+
+After creating the table, I want to make sure that each uniprot ID has a unique associated ORF. Here is the code I wrote to do this:
+
+```bash
+awk -F' ' '{print $2}' uniprot-id_to_ORF-blac-seq.txt | uniq -c | sort | grep -v -e 1 > count_num_duplicate_ORFs.txt
+```
+
+I found that there are many sequences that have more than one associated uniprot ID.
+
+To extract the uniprot IDs associated with each ORF, I am developing a bash script called `identify_duplicate_ORFs.sh` that will go through `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt`, extract the lines associated with any duplicate ORF, and create a new blastp file that does not contain any duplicate ORFs. The resulting outputs will be called `blastp_output_db_B_lac-SF5_q_blac-uniprot.duplicate_uniprot-ids.txt` and `blastp_output_db_B_lac-SF5_q_blac-uniprot.unique_uniprot-ids.txt` to contain duplicate and unique ORF lines respectively. Here are the input parameters for the bash script:
+
+- $1: input BLASTp result
+- $2: input list of duplicate ORFs
+- $3: output duplicate ORFs filename
+- $4: output unique ORFs filename
+
+This is how I am running the script:
+
+```bash
+# removing count column from duplicate ORFs file
+cat count_num_duplicate_ORFs.txt | awk -F' ' '{print $2}' > duplicate_ORFs.txt
+
+./identify_duplicate_ORFs.sh blastp_output_db_B_lac-SF5_q_blac-uniprot.txt duplicate_ORFs.txt blastp_output_db_B_lac-SF5_q_blac-uniprot.duplicate_uniprot-ids.txt blastp_output_db_B_lac-SF5_q_blac-uniprot.unique_uniprot-ids.txt
+```
+
+note: `uniprot-id_to_ORF-blac-seq.removed_duplicates.txt` will have a line at the beginning like this:
+
+```text
+### blastp output with only duplicate ORFs
+```
+
+If this file is read later, make sure to deal with this line.
+
+**TODO:** talk to Kelsey about the duplicates (I moved them to results)
+
+#### Creating the Table
+
+To create the table, I am going to use the `pandas` module in Python. For this, I am creating a conda environment meant to be used for all projects on the ml-on-effectors repo. The `environment.yml` will be placed at the root of the repo. I want to use the latest Python because I feel like it, so the environment will run on Python 3.12 (hopefully this doesn't run into any issues in the future).
