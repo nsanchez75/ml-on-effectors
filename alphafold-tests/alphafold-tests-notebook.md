@@ -9,6 +9,10 @@ TODO
 - Jumper, J et al. Highly accurate protein structure prediction with AlphaFold. Nature (2021).
 - Varadi, M et al. AlphaFold Protein Structure Database: massively expanding the structural coverage of protein-sequence space with high-accuracy models. Nucleic Acids Research (2021).
 
+## Useful Sources
+
+- [Using AF in ChimeraX](https://www.youtube.com/watch?v=gIbCAcMDM7E&authuser=1)
+
 ## Experiments: Data and Results
 
 ### Figuring Out How to Gather Data from AlphaFold
@@ -194,8 +198,68 @@ note: `uniprot-id_to_ORF-blac-seq.removed_duplicates.txt` will have a line at th
 
 If this file is read later, make sure to deal with this line.
 
-**TODO:** talk to Kelsey about the duplicates (I moved them to results)
-
 #### Creating the Table
 
 To create the table, I am going to use the `pandas` module in Python. For this, I am creating a conda environment meant to be used for all projects on the ml-on-effectors repo. The `environment.yml` will be placed at the root of the repo. I want to use the latest Python because I feel like it, so the environment will run on Python 3.12 (hopefully this doesn't run into any issues in the future).
+
+(11/9/2023)
+
+I am creating a Python script called `create_uniprot-id_table.py` that determines if a uniprot ID is associated with:
+
+- ORFs with >= 0.85 effector prediction
+- WY
+- RXLR
+- CRN
+- SP
+- and more when I evaluate other classifications
+
+In order to create an ORF list with the >=0.85 predicted effectors, I ran this command on the FASTA file associated with it:
+
+```bash
+grep -Po '>(\w+)' predicted_blac-SF5_effectors_filtered_L0.85.fasta | cut -c 2- > predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta
+```
+
+I will be using the whole BLASTp output rather than just the uniprot IDs with unique ORFs first. Here is the command I will be using:
+
+```bash
+python3 create_uniprot-id_table.py uniprot-id_to_ORF-blac-seq.txt RXLR_and_EER IDs_rxlr_and_eer.tab CRNs blac-sf5-v8-crns.txt SP sp_B_lac-SF5.filterlist.txt WY_Domain wy_cleaved_sp_B_lac-SF5.protein.fasta ov0.85_predicted predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta
+```
+
+(11/13/2023)
+
+Kelsey said that there is a better way to filter the BLASTp output to give the best possible hit. Here is the code she provided in addition to this:
+
+```R
+WYs=read.table("results_allWYs_with_names.tab", sep="\t", stringsAsFactors=F, comment.char="", header=F)
+names(WYs) = c("qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore","qcovs")
+#sort by percent identity so you can get the best hit for each gene
+order_WYs = WYs[order(-WYs$pident),]
+#remove duplicates - this keeps the first instance which will be higher since they were sorted
+uniq_hpw = order_WYs[!duplicated(order_WYs$qseqid),]
+```
+
+I rewrote some names of variables in the code for generalization and also allowed for the user to input their own BLASTp file (requires `optparse`).
+
+Also, based on Kelsey's recommendation, I changed the Python script `create_uniprot-id_table.py` so that there are no spaces in column names. This only affected "Uniprot ID" and "ORF Sequence" (converted to "Uniprot_ID" and "ORF_Sequence" respectively).
+
+(11/14/2023)
+
+I edited the R script given to me by Kelsey (now called `tabularize_blastp_output.r`) to produce a table that provides the best hits for all the AF uniprot sequences. The following command was used:
+
+```bash
+Rscript tabularize_blastp_output.r -i blastp_output_db_B_lac-SF5_q_blac-uniprot.txt
+```
+
+The resulting output file from this code is called `blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt`.
+
+note: I ran the following code to double check if the ORF IDs were truly unique in the new file and it ended up being true:
+
+```bash
+cat blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt | tail -n +2 | awk -F'\t' '{print $2}' | uniq -c | less
+```
+
+I also created a new version of `create_uniprot-id_table.py` called `create_ORF-id_table.py` to represent the new table structure that Kelsey wants. In this new structure, the table headers are ordered as follows:
+
+|ORF_sequence_ID|RXLR_EER|CRN_motif|SP|WY_Domain|effectorO_score|best_blast_hit_AF_ID|pident|length|mismatch|gapopen|qstart|qend|sstart|send|evalue|bitscore|qcovs|
+|---------------|--------|---------|--|---------|---------------|--------------------|------|------|--------|-------|------|----|------|----|------|--------|-----|
+|...............|........|.........|..|.........|...............|....................|......|......|........|.......|......|....|......|....|......|........|.....|
