@@ -74,15 +74,17 @@ I created a script that detects if the data produced by Kelsey had all the entry
 
 **TODO:** figure out what happened to these missing entry IDs.
 
-### Linking ORFs for B_lac-SF5 and AF predicted sequences thru BLAST (11/6/2023)
+### Linking ORFs for B_lac-SF5 and AF predicted sequences thru BLAST (11/6/2023 --> updated 11/15/2023)
 
-(11/6/2023)
+(11/6/2023 --> updated 11/15/2023)
 
 Here is the link for grabbing the [AlphaFold metadata from BigQuery](https://console.cloud.google.com/bigquery?p=bigquery-public-data&d=deepmind_alphafold&page=dataset&project=woven-precept-403918&ws=!1m4!1m3!3m2!1sbigquery-public-data!2sdeepmind_alphafold).
 
 #### Gathering Data
 
-I created a SQL script in BigQuery that creates the protein sequences that relate to an AF entry ID. The script is below. The output of this SQL entry is `uniprot-ids_uniprot-seqs_blac-sf5.fasta`. After analyzing the output of the resulting csv file, I found that the entryId was the same as the uniprotId with an `AF-` at the front and other stuff after it. Here is the SQL script:
+I created a SQL script in BigQuery that creates the protein sequences that relate to an AF entry ID. The script is below. The output of this SQL entry is `af_entry-ids_uniprot-seqs_for_blac-sf5.csv`. To fact-check that the correct csv file is being used, remember that the number of Bremia lactucae sequences in uniprot is 8951 (remember to check lines to ensure the right files are being used).
+
+ After analyzing the output of the resulting csv file, I found that the entryId was the same as the uniprotId with an `AF-` at the front and other stuff after it. To use the csv file to produce the BLASTp result, I converted the csv into a tsv file called `af-uniprot-id_uniprot-seq.no_headers.tsv` that only has the AF IDs and uniprot sequences from the csv file. Then, I produced a FASTA file called `af-uniprot-id_uniprot-seq.fasta` using the Python script `convert_tsv_to_fasta.py`. Here is the SQL script that produced the csv file:
 
 ```SQL
 select entryId, uniprotId, uniprotSequence from `bigquery-public-data.deepmind_alphafold.metadata`
@@ -100,7 +102,7 @@ query=uniprot sequences with alphafold
 output = table of best hits
 '''
 
-I will use `uniprot-ids_uniprot-seqs_blac-sf5.fasta` as my query fasta file and `B_lac-SF5.protein.fasta` as my database fasta file. In order to use the database fasta file, I need to convert it into a BLASTp database. To do this, I am using the `makeblastdb` command. Information on this command can be found on the [NIH website](https://www.ncbi.nlm.nih.gov/books/NBK569841/). The website example uses a taxId map text file; however, it may be difficult to do so.
+I used `af-uniprot-id_uniprot-seq.fasta` as my query fasta file and `B_lac-SF5.protein.fasta` as my database fasta file. In order to use the database fasta file, I need to convert it into a BLASTp database. To do this, I am using the `makeblastdb` command. Information on this command can be found on the [NIH website](https://www.ncbi.nlm.nih.gov/books/NBK569841/). The website example uses a taxId map text file; however, it may be difficult to do so.
 
 This is the error code that ran when I didn't create a database from the database FASTA file first:
 
@@ -108,10 +110,10 @@ This is the error code that ran when I didn't create a database from the databas
 BLAST Database error: No alias or index file found for protein database [B_lac-SF5.protein.fasta] in search path [/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_1-6::]
 ```
 
-This is the command I ran in order to make the database:
+This is the command I ran in order to make the database (I ended up having to run this again on 11/15/2023 in the date's data directory):
 
 ```bash
-makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -dbtype prot
+makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -dbtype prot > B_lac-SF5_db_creation.log
 
 ## INFO:
 # -in           : input FASTA file
@@ -119,7 +121,7 @@ makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -
 # -dbtype prot  : makes database a protein type
 ```
 
-The contents are logged in `B_lac-SF5_db_creation.log` (remember to set the output of makeblastdb to a .log next time):
+The status content is logged in `B_lac-SF5_db_creation.log` (remember to set the output of makeblastdb to a .log next time), Here's what it can look like:
 
 ```text
 Building a new DB, current time: 11/06/2023 18:03:03
@@ -138,27 +140,27 @@ I am running a script I called `blastp_q_on_ORFs.sh` where the inputs are:
 - $2: input database FASTA file
 - $3: output filename
 
-and the script runs blastp. Here is the command:
+and the script runs BLASTp. Here is the command:
 
 ```bash
-blastp -query uniprot-ids_uniprot-seqs_blac-sf5.fasta -db /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_1-6/B_lac-SF5.protein.fasta -evalue 1e-10 -outfmt "6 std qcovs" -out blastp_output.txt
+blastp -query af-uniprot-id_uniprot-seq.fasta -db /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_1-6/B_lac-SF5.protein.fasta -evalue 1e-10 -outfmt "6 std qcovs" -out blastp_output.txt
+```
+
+And here is the script (as I had used on 11/15/2023 in the date's data directory):
+
+```bash
+./blastp_q_on_ORFs.sh af-uniprot-id_uniprot-seq.fasta /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_15/B_lac-SF5.protein.fasta blastp_output_db_B_lac-SF5_q_blac-uniprot.txt
 ```
 
 #### Results
 
-Here is a 3-line sample of what the file ends up looking like. By the way, for clarity, I renamed `blastp_output.txt` to `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt`. I referenced what the columns are through [this website about BLAST output format 6](https://pascal-martin.netlify.app/post/blastn-output-format-6/).
-
-| qseqid | sseqid | pident | length | mismatch | gapopen | qstart | qend | sstart | send | evalue | bitscore |
-|--|--|--|--|--|--|--|--|--|--|--|--|
-| 0A484DY28_BRELC |Blac_SF5_v8_21_ORF306324_fr3 | 31.30 | 115 | 75 | 3 | 345 | 457 | 21 | 133 | 5e-12 | 65.522 |
-| A0A484DY28_BRELC | Blac_SF5_v8_270_ORF1603244_fr2 | 25.65 | 230 | 131 | 5 | 306 | 501 | 7 | 230 | 1e-11 | 65.538 |
-| A0A484DY28_BRELC | Blac_SF5_v8_80_ORF804847_fr3 | 40.79 | 76 | 41 | 2 | 373 | 445 | 4 | 78 | 4e-11 | 61.214 |
+Here is a 3-line sample of what the file ends up looking like. By the way, for clarity, I renamed `blastp_output.txt` to `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt` (update 11/15/2023: I just made the output file name as this which is more efficient anyways). I referenced what the columns are through [this website about BLAST output format 6](https://pascal-martin.netlify.app/post/blastn-output-format-6/). Just a warning, it takes a decent amount of time for blastp to produce a result so I would recommend (if running on its own rather than through a pipeline) to run it in the background or dedicate a screen to it.
 
 ### Analyzing Predited AF Sequences w/ EffectorO Prediction, RXLR, WY, CRN, SP, ... (11/8/2023 - )
 
-#### Linking Uniprot IDs and ORFs
+#### Linking Uniprot IDs and ORFs (deprecated)
 
-(11/8/2023)
+(11/8/2023 --> deprecated w/ 11/13/2023 stuff)
 
 To analyze the AlphaFold sequences, I am creating a table that links Uniprot Accession IDs to their ORF sequence counterparts. For this, I am going to use the `awk` command on the file `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt` through the CLI. The result is in a file called `uniprot-id_to_ORF-blac-seq.txt`. Here is the code:
 
@@ -263,3 +265,28 @@ I also created a new version of `create_uniprot-id_table.py` called `create_ORF-
 |ORF_sequence_ID|RXLR_EER|CRN_motif|SP|WY_Domain|effectorO_score|best_blast_hit_AF_ID|pident|length|mismatch|gapopen|qstart|qend|sstart|send|evalue|bitscore|qcovs|
 |---------------|--------|---------|--|---------|---------------|--------------------|------|------|--------|-------|------|----|------|----|------|--------|-----|
 |...............|........|.........|..|.........|...............|....................|......|......|........|.......|......|....|......|....|......|........|.....|
+
+(11/15/2023)
+
+I realized that I used the wrong AF sequence ID fasta file! I redid my process from 11/6/2023 (see above). I am running everything up to the stuff previosly and then talk to Kelsey about these results (should be pretty fast since I've got the general pipeline down). Here's the code that I ran for `create_ORF-ID_table.py`. As of now the code doesn't include RXLR-EER since there needs to be some analysis still, but I'll deal with it tomorrow.
+
+```bash
+python3 create_ORF-ID_table.py -i blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt -f wy_cleaved_sp_B_lac-SF5.protein.fasta sp_B_lac-SF5.filterlist.txt blac-sf5-v8-crns.txt predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta
+```
+
+The resulting TSV file is named `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv`.
+
+Just for personal reference, there are many ways to get the data from this TSV file. Here are some command examples:
+
+- determining what AF-uniprot IDs could be associated w/ ORF classifications
+
+```bash
+cat blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk -F'\t' '{print $1 "\t" $14 "\t" $15 "\t" $16}' | less
+```
+
+- checking what AF-uniprot IDs are associated w/ WY Domains
+
+```bash
+cat q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk -F'\t' '$14=="1" {print $1 "\t" $14 "\t" $15 "\t" $16}'
+| less
+```
