@@ -1,0 +1,16 @@
+Neither WY-Domain nor SP nor CRN-motif nor predicted-effectors-ov-85: 6374
+predicted-effectors-ov-85: 536
+CRN-motif: 0
+WY-Domain: 0
+SP: 943
+predicted-effectors-ov-85 and CRN-motif: 0
+predicted-effectors-ov-85 and WY-Domain: 0
+predicted-effectors-ov-85 and SP: 52
+CRN-motif and WY-Domain: 0
+CRN-motif and SP: 21
+WY-Domain and SP: 40
+predicted-effectors-ov-85 and CRN-motif and WY-Domain: 0
+predicted-effectors-ov-85 and CRN-motif and SP: 3
+predicted-effectors-ov-85 and WY-Domain and SP: 3
+CRN-motif and WY-Domain and SP: 0
+predicted-effectors-ov-85 and CRN-motif and WY-Domain and SP: 0
