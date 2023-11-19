@@ -156,7 +156,7 @@ And here is the script (as I had used on 11/15/2023 in the date's data directory
 
 Here is a 3-line sample of what the file ends up looking like. By the way, for clarity, I renamed `blastp_output.txt` to `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt` (update 11/15/2023: I just made the output file name as this which is more efficient anyways). I referenced what the columns are through [this website about BLAST output format 6](https://pascal-martin.netlify.app/post/blastn-output-format-6/). Just a warning, it takes a decent amount of time for blastp to produce a result so I would recommend (if running on its own rather than through a pipeline) to run it in the background or dedicate a screen to it.
 
-### Analyzing Predited AF Sequences w/ EffectorO Prediction, RXLR, WY, CRN, SP, ... (11/8/2023 - )
+### Analyzing Predited AF Sequences w/ EffectorO Prediction, RXLR-EER, WY, CRN, SP, etc
 
 #### Linking Uniprot IDs and ORFs (deprecated)
 
@@ -266,7 +266,7 @@ I also created a new version of `create_uniprot-id_table.py` called `create_ORF-
 |---------------|--------|---------|--|---------|---------------|--------------------|------|------|--------|-------|------|----|------|----|------|--------|-----|
 |...............|........|.........|..|.........|...............|....................|......|......|........|.......|......|....|......|....|......|........|.....|
 
-(11/15/2023)
+(11/15/2023 - 11/16/2023)
 
 I realized that I used the wrong AF sequence ID fasta file! I redid my process from 11/6/2023 (see above). I am running everything up to the stuff previosly and then talk to Kelsey about these results (should be pretty fast since I've got the general pipeline down). Here's the code that I ran for `create_ORF-ID_table.py`. As of now the code doesn't include RXLR-EER since there needs to be some analysis still, but I'll deal with it tomorrow.
 
@@ -287,6 +287,53 @@ cat blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicte
 - checking what AF-uniprot IDs are associated w/ WY Domains
 
 ```bash
-cat q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk -F'\t' '$14=="1" {print $1 "\t" $14 "\t" $15 "\t" $16}'
-| less
+cat q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk -F'\t' '$14=="1" {print $1 "\t" $14 "\t" $15 "\t" $16}' | less
+```
+
+Also, I've updated all directories that have single-digit numbers in them to add a '0' in order to sort out their ordering.
+
+**TODO:** determine what's up w/ RXLR-EER
+
+#### Summarizing and Analyzing Table Data
+
+**How many effectors of each class have AF structures in the database?** To answer this question, I first need to determine the best method of displaying the data for this. Here are some suggestions:
+
+- Summary Table (from Kelsey)
+- Venn Diagram for basic numerical data (can distinguish how many are identified w/ multiple classes + no class)
+
+<!--
+Here is a script produced by ChatGPT that might be able to construct a Venn Diagram that can list the number of AF IDs not in any of the sets (all the classifications)
+
+```R
+# Install and load the VennDiagram package
+install.packages("VennDiagram")
+library(VennDiagram)
+
+# Create example data
+set1 <- c("A", "B", "C", "D")
+set2 <- c("C", "D", "E", "F")
+set3 <- c("G", "H", "I", "J")
+
+# Create the Venn diagram
+venn.plot <- venn.plot(list(Set1 = set1, Set2 = set2, Set3 = set3),
+                       category.names = c("Set1", "Set2", "Set3"),
+                       filename = NULL, output = TRUE)
+
+# Add a number for data that isn't in any of the sets
+venn.plot <- venn.plot + 
+  draw.single(0.9, 0.9, "0", category = "Only in diagram")
+
+# Display the Venn diagram
+grid.draw(venn.plot)
+```
+-->
+
+I decided to implement the summary table creation inside of the `create_ORF-ID_table.py` script. The resulting summary table will be given as a log file called [name of log file]. In order to produce the summary log with the different combinations of headers, I used the `itertools` module, particularly its `combinations` function (which doesn't require a pip install thankfully). THe resulting output file is called `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.summary_table.log`.
+
+(11/19/2023)
+
+After a lot of complicated configuration for the past couple of days, I've managed to develop a summary table creator in the python script. It involves using the idea of combinations and reduction in order to perform its process. To test if the values are correct, I've been using awk commands. Below is an example awk command that checks if the last 4 columns produce the same count as the summary table
+
+```bash
+awk -F'\t' '$(NF-3) == 0 && $(NF-2) == 0 && $(NF-1) == 0 && $NF == 0 {print}' blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | wc -l
 ```
