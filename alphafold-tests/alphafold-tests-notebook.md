@@ -93,14 +93,14 @@ where taxId = 4779
 
 Kelsey gave me this script that will help determine which sequences are related to each other via BLASTp:
 
-'''text
+```bash
 blastp -query [query.fasta] -db [db.fasta] -evalue 1e-10 -outfmt "6 std qcovs" -out [name]
 
-database = all Bremia lactucae ORFs
-query=uniprot sequences with alphafold
+# database = all Bremia lactucae ORFs
+# query=uniprot sequences with alphafold
 
-output = table of best hits
-'''
+# output = table of best hits
+```
 
 I used `af-uniprot-id_uniprot-seq.fasta` as my query fasta file and `B_lac-SF5.protein.fasta` as my database fasta file. In order to use the database fasta file, I need to convert it into a BLASTp database. To do this, I am using the `makeblastdb` command. Information on this command can be found on the [NIH website](https://www.ncbi.nlm.nih.gov/books/NBK569841/). The website example uses a taxId map text file; however, it may be difficult to do so.
 
@@ -123,7 +123,7 @@ makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -
 
 The status content is logged in `B_lac-SF5_db_creation.log` (remember to set the output of makeblastdb to a .log next time), Here's what it can look like:
 
-```text
+```log
 Building a new DB, current time: 11/06/2023 18:03:03
 New DB name:   /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_1-6/B_lac-SF5.protein.fasta
 New DB title:  Bremia Lactucae ORF Sequences
