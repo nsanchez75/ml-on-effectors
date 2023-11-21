@@ -270,8 +270,10 @@ I also created a new version of `create_uniprot-id_table.py` called `create_ORF-
 
 I realized that I used the wrong AF sequence ID fasta file! I redid my process from 11/6/2023 (see above). I am running everything up to the stuff previosly and then talk to Kelsey about these results (should be pretty fast since I've got the general pipeline down). Here's the code that I ran for `create_ORF-ID_table.py`. As of now the code doesn't include RXLR-EER since there needs to be some analysis still, but I'll deal with it tomorrow.
 
+(update 11/20/2023: added `IDs_rxlr_and_eer.tab` to script below)
+
 ```bash
-python3 create_ORF-ID_table.py -i blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt -f wy_cleaved_sp_B_lac-SF5.protein.fasta sp_B_lac-SF5.filterlist.txt blac-sf5-v8-crns.txt predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta
+python3 create_ORF-ID_table.py -i blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt -f wy_cleaved_sp_B_lac-SF5.protein.fasta sp_B_lac-SF5.filterlist.txt blac-sf5-v8-crns.txt predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta IDs_rxlr_and_eer.tab
 ```
 
 The resulting TSV file is named `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv`.
@@ -291,8 +293,6 @@ cat q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk
 ```
 
 Also, I've updated all directories that have single-digit numbers in them to add a '0' in order to sort out their ordering.
-
-**TODO:** determine what's up w/ RXLR-EER
 
 #### Summarizing and Analyzing Table Data
 
@@ -337,3 +337,65 @@ After a lot of complicated configuration for the past couple of days, I've manag
 ```bash
 awk -F'\t' '$(NF-3) == 0 && $(NF-2) == 0 && $(NF-1) == 0 && $NF == 0 {print}' blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | wc -l
 ```
+
+Here is a sample of the output summary log (this one didn't have RXLR but the other summary logs below do):
+
+```text
+Neither WY-Domain nor SP nor CRN-motif nor predicted-effectors-ov-85: 6374
+predicted-effectors-ov-85: 536
+CRN-motif: 0
+WY-Domain: 0
+SP: 943
+predicted-effectors-ov-85 and CRN-motif: 0
+predicted-effectors-ov-85 and WY-Domain: 0
+predicted-effectors-ov-85 and SP: 52
+CRN-motif and WY-Domain: 0
+CRN-motif and SP: 21
+WY-Domain and SP: 40
+predicted-effectors-ov-85 and CRN-motif and WY-Domain: 0
+predicted-effectors-ov-85 and CRN-motif and SP: 3
+predicted-effectors-ov-85 and WY-Domain and SP: 3
+CRN-motif and WY-Domain and SP: 0
+predicted-effectors-ov-85 and CRN-motif and WY-Domain and SP: 0
+```
+
+(11/20/2023)
+
+Kelsey says that the summary table should look more like this:
+
+| No SP |  |
+| ----- | --- |
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 6374 |
+| Predicted effector (EffectorO > 0.85) | 484 |
+
+| SP |  |
+| ----- | --- |
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 943
+| CRN-motif | 21
+| WY-Domain | 40
+| EffectorO (>0.85) | 52
+
+| Total | 7914 |
+| ----- | ---- |
+
+This is because if the sequence has RXLR, WY, CRN, or anything known to be an effector, then it is bound to have a signal peptide as well. This is proven with the summary table I produced with the different combinations of all the headers; all of the known effectors only had a quantifiable count if SP was involved.
+
+To make this, I commented out my previous summary table creator in `create_ORF-ID_table.py` and am creating a new Python script called `analyze_ORF-ID_table.py` that will produce the resulting summary table. *As a note for the future, I assume that the known effectors for non-SP data comes from effector predictions >0.85. Make sure to generalize this if necessary.*
+
+**TODO:** Make sure to identified sequences that fulfill more than one class under SP (gonna use itertools again yay). This is because the resulting table ends up being:
+
+```text
+No SP:
+        Predicted Non-Effectors: 6374
+        Predicted Effectors: 536
+SP:
+        Predicted Non-Effectors: 916
+        WY-Domain: 43
+        CRN-motif: 24
+        predicted-effectors-ov-85: 58
+        RXLR-EER: 50
+
+Total: 8001
+```
+
+while the actual file `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv` has only 7973 lines (7972 excluding the header row).
