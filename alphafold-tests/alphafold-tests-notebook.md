@@ -93,14 +93,14 @@ where taxId = 4779
 
 Kelsey gave me this script that will help determine which sequences are related to each other via BLASTp:
 
-'''text
+```bash
 blastp -query [query.fasta] -db [db.fasta] -evalue 1e-10 -outfmt "6 std qcovs" -out [name]
 
-database = all Bremia lactucae ORFs
-query=uniprot sequences with alphafold
+# database = all Bremia lactucae ORFs
+# query=uniprot sequences with alphafold
 
-output = table of best hits
-'''
+# output = table of best hits
+```
 
 I used `af-uniprot-id_uniprot-seq.fasta` as my query fasta file and `B_lac-SF5.protein.fasta` as my database fasta file. In order to use the database fasta file, I need to convert it into a BLASTp database. To do this, I am using the `makeblastdb` command. Information on this command can be found on the [NIH website](https://www.ncbi.nlm.nih.gov/books/NBK569841/). The website example uses a taxId map text file; however, it may be difficult to do so.
 
@@ -123,7 +123,7 @@ makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -
 
 The status content is logged in `B_lac-SF5_db_creation.log` (remember to set the output of makeblastdb to a .log next time), Here's what it can look like:
 
-```text
+```log
 Building a new DB, current time: 11/06/2023 18:03:03
 New DB name:   /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_1-6/B_lac-SF5.protein.fasta
 New DB title:  Bremia Lactucae ORF Sequences
@@ -156,7 +156,7 @@ And here is the script (as I had used on 11/15/2023 in the date's data directory
 
 Here is a 3-line sample of what the file ends up looking like. By the way, for clarity, I renamed `blastp_output.txt` to `blastp_output_db_B_lac-SF5_q_blac-uniprot.txt` (update 11/15/2023: I just made the output file name as this which is more efficient anyways). I referenced what the columns are through [this website about BLAST output format 6](https://pascal-martin.netlify.app/post/blastn-output-format-6/). Just a warning, it takes a decent amount of time for blastp to produce a result so I would recommend (if running on its own rather than through a pipeline) to run it in the background or dedicate a screen to it.
 
-### Analyzing Predited AF Sequences w/ EffectorO Prediction, RXLR, WY, CRN, SP, ... (11/8/2023 - )
+### Analyzing Predited AF Sequences w/ EffectorO Prediction, RXLR-EER, WY, CRN, SP, etc
 
 #### Linking Uniprot IDs and ORFs (deprecated)
 
@@ -266,12 +266,14 @@ I also created a new version of `create_uniprot-id_table.py` called `create_ORF-
 |---------------|--------|---------|--|---------|---------------|--------------------|------|------|--------|-------|------|----|------|----|------|--------|-----|
 |...............|........|.........|..|.........|...............|....................|......|......|........|.......|......|....|......|....|......|........|.....|
 
-(11/15/2023)
+(11/15/2023 - 11/16/2023)
 
 I realized that I used the wrong AF sequence ID fasta file! I redid my process from 11/6/2023 (see above). I am running everything up to the stuff previosly and then talk to Kelsey about these results (should be pretty fast since I've got the general pipeline down). Here's the code that I ran for `create_ORF-ID_table.py`. As of now the code doesn't include RXLR-EER since there needs to be some analysis still, but I'll deal with it tomorrow.
 
+(update 11/20/2023: added `IDs_rxlr_and_eer.tab` to script below)
+
 ```bash
-python3 create_ORF-ID_table.py -i blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt -f wy_cleaved_sp_B_lac-SF5.protein.fasta sp_B_lac-SF5.filterlist.txt blac-sf5-v8-crns.txt predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta
+python3 create_ORF-ID_table.py -i blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt -f wy_cleaved_sp_B_lac-SF5.protein.fasta sp_B_lac-SF5.filterlist.txt blac-sf5-v8-crns.txt predicted_blac-SF5_effectors_filtered_L0.85.list_of_ORFs.fasta IDs_rxlr_and_eer.tab
 ```
 
 The resulting TSV file is named `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv`.
@@ -287,6 +289,113 @@ cat blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicte
 - checking what AF-uniprot IDs are associated w/ WY Domains
 
 ```bash
-cat q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk -F'\t' '$14=="1" {print $1 "\t" $14 "\t" $15 "\t" $16}'
-| less
+cat q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | awk -F'\t' '$14=="1" {print $1 "\t" $14 "\t" $15 "\t" $16}' | less
 ```
+
+Also, I've updated all directories that have single-digit numbers in them to add a '0' in order to sort out their ordering.
+
+#### Summarizing and Analyzing Table Data
+
+**How many effectors of each class have AF structures in the database?** To answer this question, I first need to determine the best method of displaying the data for this. Here are some suggestions:
+
+- Summary Table (from Kelsey)
+- Venn Diagram for basic numerical data (can distinguish how many are identified w/ multiple classes + no class)
+
+<!--
+Here is a script produced by ChatGPT that might be able to construct a Venn Diagram that can list the number of AF IDs not in any of the sets (all the classifications)
+
+```R
+# Install and load the VennDiagram package
+install.packages("VennDiagram")
+library(VennDiagram)
+
+# Create example data
+set1 <- c("A", "B", "C", "D")
+set2 <- c("C", "D", "E", "F")
+set3 <- c("G", "H", "I", "J")
+
+# Create the Venn diagram
+venn.plot <- venn.plot(list(Set1 = set1, Set2 = set2, Set3 = set3),
+                       category.names = c("Set1", "Set2", "Set3"),
+                       filename = NULL, output = TRUE)
+
+# Add a number for data that isn't in any of the sets
+venn.plot <- venn.plot + 
+  draw.single(0.9, 0.9, "0", category = "Only in diagram")
+
+# Display the Venn diagram
+grid.draw(venn.plot)
+```
+-->
+
+I decided to implement the summary table creation inside of the `create_ORF-ID_table.py` script. The resulting summary table will be given as a log file called [name of log file]. In order to produce the summary log with the different combinations of headers, I used the `itertools` module, particularly its `combinations` function (which doesn't require a pip install thankfully). THe resulting output file is called `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.summary_table.log`.
+
+(11/19/2023)
+
+After a lot of complicated configuration for the past couple of days, I've managed to develop a summary table creator in the python script. It involves using the idea of combinations and reduction in order to perform its process. To test if the values are correct, I've been using awk commands. Below is an example awk command that checks if the last 4 columns produce the same count as the summary table
+
+```bash
+awk -F'\t' '$(NF-3) == 0 && $(NF-2) == 0 && $(NF-1) == 0 && $NF == 0 {print}' blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85.tsv | wc -l
+```
+
+Here is a sample of the output summary log (this one didn't have RXLR but the other summary logs below do):
+
+```text
+Neither WY-Domain nor SP nor CRN-motif nor predicted-effectors-ov-85: 6374
+predicted-effectors-ov-85: 536
+CRN-motif: 0
+WY-Domain: 0
+SP: 943
+predicted-effectors-ov-85 and CRN-motif: 0
+predicted-effectors-ov-85 and WY-Domain: 0
+predicted-effectors-ov-85 and SP: 52
+CRN-motif and WY-Domain: 0
+CRN-motif and SP: 21
+WY-Domain and SP: 40
+predicted-effectors-ov-85 and CRN-motif and WY-Domain: 0
+predicted-effectors-ov-85 and CRN-motif and SP: 3
+predicted-effectors-ov-85 and WY-Domain and SP: 3
+CRN-motif and WY-Domain and SP: 0
+predicted-effectors-ov-85 and CRN-motif and WY-Domain and SP: 0
+```
+
+(11/20/2023)
+
+Kelsey says that the summary table should look more like this:
+
+| No SP |  |
+| ----- | --- |
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 6374 |
+| Predicted effector (EffectorO > 0.85) | 484 |
+
+| SP |  |
+| ----- | --- |
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 943
+| CRN-motif | 21
+| WY-Domain | 40
+| EffectorO (>0.85) | 52
+
+| Total | 7914 |
+| ----- | ---- |
+
+This is because if the sequence has RXLR, WY, CRN, or anything known to be an effector, then it is bound to have a signal peptide as well. This is proven with the summary table I produced with the different combinations of all the headers; all of the known effectors only had a quantifiable count if SP was involved.
+
+To make this, I commented out my previous summary table creator in `create_ORF-ID_table.py` and am creating a new Python script called `analyze_ORF-ID_table.py` that will produce the resulting summary table. *As a note for the future, I assume that the known effectors for non-SP data comes from effector predictions >0.85. Make sure to generalize this if necessary.*
+
+**TODO:** Make sure to identified sequences that fulfill more than one class under SP (gonna use itertools again yay). This is because the resulting table ends up being:
+
+```text
+No SP:
+        Predicted Non-Effectors: 6374
+        Predicted Effectors: 536
+SP:
+        Predicted Non-Effectors: 916
+        WY-Domain: 43
+        CRN-motif: 24
+        predicted-effectors-ov-85: 58
+        RXLR-EER: 50
+
+Total: 8001
+```
+
+while the actual file `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv` has only 7973 lines (7972 excluding the header row).
