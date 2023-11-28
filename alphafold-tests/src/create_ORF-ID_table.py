@@ -54,31 +54,31 @@ if os.path.exists(out_filename_table):
     os.remove(out_filename_table)
 orf_table.to_csv(out_filename_table, sep='\t', index=False)
 
-# create summary table
-def get_i_and_h_from_orf_table()->list[tuple]:
-    return [(i, h) for i, h in enumerate(orf_table.columns[headers_start_index:], start=headers_start_index)]
-
-out_filename_log = f"{out_filename}.summary_table.log"
-if os.path.exists(out_filename_log):
-    print(f"File {out_filename_log} detected. Overwriting...")
-    os.remove(out_filename_log)
-
-with open(out_filename_log, 'w') as fst:
-    # get all header combinations
-    header_combos = list()
-    for r in range(len(headers) + 1):
-        for combo in combinations(set(headers), r):
-            # determine which headers are in combo
-            headers_check = [1 if (h in combo) else 0 for i, h in get_i_and_h_from_orf_table()]
-            
-            # get conditions
-            conditions = list()
-            for i, h in get_i_and_h_from_orf_table():
-                conditions.append(orf_table[h] == headers_check[i - headers_start_index])
-            conditions = reduce(lambda x, y: (x & y), conditions)
-    
-            # write count to file
-            combo_count = len(orf_table[conditions])
-            if not len(combo): fst.write(f"Neither {' nor '.join(h for i, h in get_i_and_h_from_orf_table())}: {combo_count}\n")
-            else:              fst.write(f"{' and '.join(combo)}: {combo_count}\n")
+## create summary table
+#def get_i_and_h_from_orf_table()->list[tuple]:
+#    return [(i, h) for i, h in enumerate(orf_table.columns[headers_start_index:], start=headers_start_index)]
+#
+#out_filename_log = f"{out_filename}.summary_table.log"
+#if os.path.exists(out_filename_log):
+#    print(f"File {out_filename_log} detected. Overwriting...")
+#    os.remove(out_filename_log)
+#
+#with open(out_filename_log, 'w') as fst:
+#    # get all header combinations
+#    header_combos = list()
+#    for r in range(len(headers) + 1):
+#        for combo in combinations(set(headers), r):
+#            # determine which headers are in combo
+#            headers_check = [1 if (h in combo) else 0 for i, h in get_i_and_h_from_orf_table()]
+#            
+#            # get conditions
+#            conditions = list()
+#            for i, h in get_i_and_h_from_orf_table():
+#                conditions.append(orf_table[h] == headers_check[i - headers_start_index])
+#            conditions = reduce(lambda x, y: (x & y), conditions)
+#    
+#            # write count to file
+#            combo_count = len(orf_table[conditions])
+#            if not len(combo): fst.write(f"Neither {' nor '.join(h for i, h in get_i_and_h_from_orf_table())}: {combo_count}\n")
+#            else:              fst.write(f"{' and '.join(combo)}: {combo_count}\n")
 
