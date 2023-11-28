@@ -364,19 +364,20 @@ predicted-effectors-ov-85 and CRN-motif and WY-Domain and SP: 0
 Kelsey says that the summary table should look more like this:
 
 | No SP |  |
-| ----- | --- |
-| Predicted non-effector (no RXLR, WY, CRN, EffO) | 6374 |
-| Predicted effector (EffectorO > 0.85) | 484 |
+| ----- | - |
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 6374
+| Predicted effector (EffectorO > 0.85) | 484
 
 | SP |  |
-| ----- | --- |
+| ----- | - |
 | Predicted non-effector (no RXLR, WY, CRN, EffO) | 943
 | CRN-motif | 21
 | WY-Domain | 40
 | EffectorO (>0.85) | 52
 
-| Total | 7914 |
-| ----- | ---- |
+| Total |
+| ----- |
+| 7914  |
 
 This is because if the sequence has RXLR, WY, CRN, or anything known to be an effector, then it is bound to have a signal peptide as well. This is proven with the summary table I produced with the different combinations of all the headers; all of the known effectors only had a quantifiable count if SP was involved.
 
@@ -399,3 +400,57 @@ Total: 8001
 ```
 
 while the actual file `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv` has only 7973 lines (7972 excluding the header row).
+
+**TODO:** continue working on this
+
+### Predicting Bremia Lactucae Sequences
+
+#### Running on ColabFold
+
+I ran this 971aa sequence on ColabFold to test how long it runs on long sequences (>=860aa):
+
+```text
+>Blac_SF5_v8_1_ORF2357_fr6 Blac_SF5_v8_1:1091517..1094432
+MQASNSDIRRHFKQFDDELQDSDQTFSQSVQYSRPRHRPSSIKDASNNSVKPLRCRFPTSAFFSDSTDDDVSRPIATSPSRSQLSRSACNRSKYTKHYNVPLHMSVGPREGQIGKTHMPRLHVHPIQFPITRSVLWDRRPLSAGPIKLSLEQILLQFIVSADALKEIYKLYREKKDAQDNYIVLCYLYGNASMGIENKVLLKRVMRHKEDVRAAGIWCVPVLSMAITEDNSELLRNSYVSSVQSVQSSYRDEYTDDVSCKLQPKLLVFQSSPHAAQLEFQLECVASPVLFTFNLVRNLPLLMTPLAATLAKRDLTIRSGNLRSGYLTLDSTRKAVPLLKVDPLVMQYPIIGVWVYGVQIDDAWDDDRARRQLASPFLYFACIGFLMSEAIRERVGPAKNTFLVALYPANDLECVGTIGTLPRFFECSYSSFLSPPEEPLPLELYSHRRSCLVGVSKFSTDVEFILSAATTREWEEARHQMKIPASLRTEIDNLECKRSRLGAYKEQERSVALQDIRLVSVGDEDQVDGLSGWTITDDAIKKSVSLGLNGATPALKSKAENAAFANVNLVDDQENLLIGGQEKYEAKSDSDISKTSSSKNVEVATEAAKRVGSFYNSNKSRSCCKTQQLLTIQHQQILENQQKQLHDMQDQISQLRHLLSVARSGSSSERQTNASLDDGIDESGDNKLSVDAIHTHTSSAGCKPEDGNTCLQLSMASESQRNEDDSDSDINSLFKVENDRDDSMDFSLSSLNLSSIRSGSDAGLSSQSSSPVGRQAKQLCPLEMHDKDLAVEKAAHSDVNRSTRSEPPEVPMSNGETAQQLALSEICGDDEADSCKLQEHENAEERSALKLFLGELDEFGSSSNPSAVDNVENVHANIPNFVVDNRSRGDNESSGDKFSKIERLLSPDAYLRKIGGFVDLHKGCFTTPSLDFHSFCVPRIKYSTESPEYPMSDSEDEETRLIERKYKQLMAA*
+```
+
+and it took **~1 hour**. There are 899 860+ aa sequences, so it would take ~37.46 days to run all of the longer sequences.
+
+To test the lower bound, I ran this 99aa sequence:
+
+```text
+>Blac_SF5_v8_1_ORF38_fr1 Blac_SF5_v8_1:1258..1554
+MDIYRSHPATFVAAVTIASNAECGLKSSRVGMHGDNVSSLSTSGPSIKPQLTDISLAEEKEEPQAVKQYNNNRMLYVRKHKALVHGVCCPRCHVQHFR*
+```
+
+and it took **~1 minute**.
+
+(11/27/2023)
+
+I have discovered from some Google searching that there may be a way to run Google Colab notebooks locally; this would mean it could be possible for ColabFold to be run on the lab server. I found this [StackOverflow post](https://stackoverflow.com/questions/50194637/colaboratory-how-to-install-and-use-on-local-machine) that explains one possible way to install Google Colab onto the lab server. Here are the instructions:
+
+- git clone [this repo](https://github.com/googlecolab/colabtools)
+- when `cd`ed into the repo, run `python3 setup.py install`
+
+I also looked for ColabFold repos in GitHub. I found these two:
+
+- [ColabFold](https://github.com/sokrypton/ColabFold)
+- [ColabFold for Local PC](https://github.com/YoshitakaMo/localcolabfold)
+
+After looking more into this, I noticed that this GitHub repo may be what Kakawa is using to run ColabFold.
+
+Now, it is time for me to determine what sequences are not present in the AF database. This is under the assumption that only the best hits of ORFs and AF sequences are the only ORFs present in the AF database. I created the list files used in the code below with grep -Po (same as in line 221) and the awk function on `B_lac-SF5.protein.fasta` and `blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt` respectively. I used [this website](https://www.baeldung.com/linux/finding-unique-text-between-two-files#:~:text=Using%20grep,in%20one%20of%20the%20files.&text=We%20use%20the%20%2DF%20option,for%20specifying%20the%20pattern%20file.) to learn about the `-Fxvf` flag for grep.
+
+```bash
+grep -Fxvf blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.ORFs.txt B_lac-SF5.protein.list.txt > blac_ORFS_not_in_AF-db.txt
+```
+
+#### Running on Kakawa
+
+(11/27/2023)
+
+Kelsey is currently working on making this work.
+
+#### Linking NCBI IDs to AF IDs
+
+To do this, I downloaded an excel file called `Bremia-WY-NCBI-seqs.xlsx` that contains NCBI IDs of some protein sequences from Kelsey. Kelsey wanted me to map these sequences to their AF IDs. For this, I used [this website](https://www.uniprot.org/id-mapping) to first map the NCBI IDs to their Uniprot ID counterparts; this is because AF IDs use Uniprot IDs as a part of their naming scheme. This resulted in the fasta file `ncbi-id_to_unprot-id_2023_11_28.fasta`.
