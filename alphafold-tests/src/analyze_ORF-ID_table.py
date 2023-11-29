@@ -1,5 +1,4 @@
 import pandas as pd
-from itertools import combinations
 from functools import reduce
 import os
 import sys
@@ -46,7 +45,7 @@ for header in sp_table.columns[HEADERS_INDEX_START:]:
     else: sp_predicted_effector_dict[header] = len(sp_table[sp_table[header].astype(int) == 1])
 
 ## get total
-total = NON_SP_PREDICTED_NON_EFFECTOR + NON_SP_PREDICTED_EFFECTOR + SP_PREDICTED_NON_EFFECTOR + sum(sp_predicted_effector_dict.values())
+total = len(orf_table)
 
 ## create summary log
 summary_log_file = f"{infile_no_extensions}.summary.log"

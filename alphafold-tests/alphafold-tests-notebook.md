@@ -260,6 +260,34 @@ note: I ran the following code to double check if the ORF IDs were truly unique 
 cat blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt | tail -n +2 | awk -F'\t' '{print $2}' | uniq -c | less
 ```
 
+----
+
+##### Figuring out why there are missing AF IDs
+
+(11/29/2023)
+
+There are some missing AF IDs in the filtered BLASTp output. According to `af_entry-ids_for_blac-sf5.csv`, there are 8952 entries; however, there are 7973 entries in `blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt`. I ran this in the CLI to determine what AF IDs were missing:
+
+```bash
+diff <(cat af_entry-ids_for_blac-sf5.csv | tail -n +2 | sort) <(awk -F'\t' '{print $1}' blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt | tail -n +2 | sort) > missing_AF_IDs.temp.txt
+grep -Po '< (\w+-\w+)' missing_AF_IDs.temp.txt | cut -c 3- > missing_AF_IDs.txt
+rm missing_AF_IDs.temp.txt
+```
+
+I am going to test the e-value of these missing AF IDs on our Bremia lactucae SF5 group. First, I created the filtered AF fasta file:
+
+```bash
+./filter_fasta_with_list.sh af-uniprot-id_uniprot-seq.fasta missing_AF_IDs.txt
+```
+
+Next, I created a database of B_lac-SF5.protein.fasta in the data/2023_11_29 directory (this line of code was copied from line 116):
+
+```bash
+makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -dbtype prot > B_lac-SF5_db_creation.log
+```
+
+----
+
 I also created a new version of `create_uniprot-id_table.py` called `create_ORF-id_table.py` to represent the new table structure that Kelsey wants. In this new structure, the table headers are ordered as follows:
 
 |ORF_sequence_ID|RXLR_EER|CRN_motif|SP|WY_Domain|effectorO_score|best_blast_hit_AF_ID|pident|length|mismatch|gapopen|qstart|qend|sstart|send|evalue|bitscore|qcovs|
