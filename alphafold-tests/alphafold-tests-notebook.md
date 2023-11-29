@@ -383,7 +383,13 @@ This is because if the sequence has RXLR, WY, CRN, or anything known to be an ef
 
 To make this, I commented out my previous summary table creator in `create_ORF-ID_table.py` and am creating a new Python script called `analyze_ORF-ID_table.py` that will produce the resulting summary table. *As a note for the future, I assume that the known effectors for non-SP data comes from effector predictions >0.85. Make sure to generalize this if necessary.*
 
+```bash
+python3 analyze_ORF-ID_table.py blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv
+```
+
 **TODO:** Make sure to identified sequences that fulfill more than one class under SP (gonna use itertools again yay). This is because the resulting table ends up being:
+
+(11/28/2023 update - added parentheses in text below)
 
 ```text
 No SP:
@@ -391,10 +397,10 @@ No SP:
         Predicted Effectors: 536
 SP:
         Predicted Non-Effectors: 916
-        WY-Domain: 43
+        WY-Domain: 43 (12 w/ RXLR)
         CRN-motif: 24
-        predicted-effectors-ov-85: 58
-        RXLR-EER: 50
+        predicted-effectors-ov-85: 58 (try to specify ones that dont have WY + RXLR-EER)
+        RXLR-EER: 50 (w/o WY)
 
 Total: 8001
 ```
@@ -445,11 +451,23 @@ Now, it is time for me to determine what sequences are not present in the AF dat
 grep -Fxvf blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.ORFs.txt B_lac-SF5.protein.list.txt > blac_ORFS_not_in_AF-db.txt
 ```
 
+(11/28/2023)
+
+I am creating a filtered version of `B_lac-SF5.protein.fasta` by using a Shell script `filter_fasta_with_list.sh` that takes in the list file `blac_ORFS_not_in_AF-db.txt` and the fasta file to produce the newly filtered fasta file containing ORF sequences not found in the AF database.
+
+**TODO:** continue with this
+
 #### Running on Kakawa
 
 (11/27/2023)
 
 Kelsey is currently working on making this work.
+
+#### Running on Local Computer
+
+Kelsey talked about using local computers in order to make the computation time much faster. The GitHub link can be found on line 438 as well as through [this link](https://github.com/YoshitakaMo/localcolabfold).
+
+Here is a [link](https://saturncloud.io/blog/how-to-run-google-colab-locally-a-step-by-step-guide/) that explains how to set up Colab locally.
 
 #### Linking NCBI IDs to AF IDs
 
