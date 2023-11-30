@@ -280,11 +280,66 @@ I am going to test the e-value of these missing AF IDs on our Bremia lactucae SF
 ./filter_fasta_with_list.sh af-uniprot-id_uniprot-seq.fasta missing_AF_IDs.txt
 ```
 
+This created `missing_AF_IDs.filtered.fasta`.
+
 Next, I created a database of B_lac-SF5.protein.fasta in the data/2023_11_29 directory (this line of code was copied from line 116):
 
 ```bash
 makeblastdb -in B_lac-SF5.protein.fasta -title "Bremia Lactucae ORF Sequences" -dbtype prot > B_lac-SF5_db_creation.log
 ```
+
+Next, I ran BLASTp on `missing_AF_IDs.filtered.fasta` without a specified e-value.
+
+```bash
+blastp -query missing_AF_IDs.filtered.fasta -db /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_29/B_lac-SF5.protein.fasta -outfmt "6 std qcovs" -out blastp_missing_AF-IDs_output.txt
+```
+
+After looking at their e-values, I found that their scores are above the previosly specified 1e-10 cutoff. Here is the code and 10-line output displaying the e-value scores in ascending order:
+
+```bash
+awk -F'\t' '{print $11}' blastp_missing_AF-IDs_output.txt | sort -g | head -n 10
+
+3e-17
+3e-11
+1e-10
+1e-10
+1e-10
+1e-10
+2e-10
+2e-10
+2e-10
+2e-10
+
+# anomalies
+AF-A0A484DQ54-F1  Blac_SF5_v8_5_ORF85373_fr2  22.78 496 276 20  35  490 438 866 3e-17 85.192
+AF-A0A484E4Y9-F1  Blac_SF5_v8_24_ORF337457_fr2  54.72 53  24  0 1 53  1 53  3e-11   55.190
+```
+
+The last two entries I wrote out seem to be anomalies since their scores are below the 1e-10 threshold. Maybe their pident was too low?
+
+note: the -g command for `sort` sorts the lines numerically.
+
+----
+
+##### BLASTp on NCBI Genome + AF IDs
+
+(11/29/2023)
+
+I downloaded the Bremia lactucae SF5 protein dataset off of [the NCBI website](https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_004359215.2/). The file is named `blac_SF5_ncbi_proteins.faa`.
+
+This is the code that was used to create the database for ORFs + Gene Models (protein seq).
+
+```bash
+makeblastdb -in blac_SF5_ncbi_proteins.faa -title "Bremia Lactucae NCBI Protein Sequences" -dbtype prot > B_lac-SF5_ncbi_proteins_db_creation.log
+```
+
+And I used this code to BLASTp the NCBI proteins and the AF ID fasta file (note that this BLASTp uses the default e-value=10):
+
+```bash
+blastp -query af-uniprot-id_uniprot-seq.fasta -db blac_SF5_ncbi_proteins.faa -outfmt "6 std qcovs" -out blastp_output_AF-ID_ncbi-proteins.txt
+```
+
+And I found out that this stuff was kinda redundant. The filtered BLASTp output shows a bunch of 100% pidents and qcovs. Very nice.
 
 ----
 
@@ -435,7 +490,45 @@ Total: 8001
 
 while the actual file `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv` has only 7973 lines (7972 excluding the header row).
 
-**TODO:** continue working on this
+(11/30/2023)
+
+Here is the new table that Kelsey wants me to create:
+
+```text
+Non-secreted (SignalP)
+  Predicted non-effector (no RXLR, WY, CRN, EffO)
+  CRN-motif
+  WY-Domain
+    with RXLR-EER
+  RXLR-EER (no WY)
+  EffectorO (>0.85) (no other effector domains)
+  
+  Total non-secreted
+
+
+Secreted (SignalP)
+  Predicted non-effector (no RXLR, WY, CRN, EffO)
+  CRN-motif
+  WY-Domain
+    with RXLR-EER
+  RXLR-EER (no WY)
+  EffectorO (>0.85) (no other effector domains)
+  
+  Total secreted
+
+
+Total proteins in UniProt/AF DB
+```
+
+Here is the code I used to determine if there were no sequences that contain CRN ($16) and either WY ($14) or RXLR-EER ($18).
+
+```bash
+awk -F'\t' 'BEGIN{OFS="\t"} $14==1 && $16==1 || $18==1 && $16==1 {print}' blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv | wc -l
+```
+
+note: '&&' has precedence over '||' according to [this StackOverflow post](https://stackoverflow.com/questions/42096063/multiple-conditions-of-and-and-or-in-one-awk-command).
+
+**TODO:** turn this into a bash script for generalization
 
 ### Predicting Bremia Lactucae Sequences
 
