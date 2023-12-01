@@ -1,0 +1,10 @@
+
+
+Building a new DB, current time: 11/29/2023 12:07:05
+New DB name:   /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/data/2023_11_29/B_lac-SF5.protein.fasta
+New DB title:  Bremia Lactucae ORF Sequences
+Sequence type: Protein
+Keep Linkouts: T
+Keep MBits: T
+Maximum file size: 1000000000B
+Adding sequences from FASTA; added 105272 sequences in 8.78745 seconds.
