@@ -1,5 +1,5 @@
 from datetime import datetime
-from os import makedirs
+from os import makedirs, remove
 from os.path import exists
 from time import sleep
 from sys import argv
@@ -16,23 +16,29 @@ PROGRAM INFO:
                more requests.
 
 
-  Input: FASTA files outputted from EffectorO
+  Input: FASTA files
   Output: PDB files of predicted protein folds in a directory
 """
 
-def esm_curl_sequence(header: str, sequence: str, outfilename: str)->None:
+def esm_curl_sequence(header: str, sequence: str, outfilepath: str)->None:
   """
   A function to run ESMFold API on a sequence.
   """
 
+  # declare diff filenames for STDOUT and STDERR
+  outfile = outfilepath + ".pdb"
+  errfile = outfilepath + ".log"
+
   # remove the file if it already exists
-  if exists(f"predicted_esmfolds/{header}.pdb"):
+  if exists(outfile):
     print(f"Warning: PDB file for {header} detected. Overwriting...")
+
 
   # run ESMFold
   print(f"Running ESMFold fold prediction on {header}...")
-  run(f'curl -X POST --data "{sequence}" https://api.esmatlas.com/foldSequence/v1/pdb/ > {outfilename} --insecure', shell=True)
-  if not exists(outfilename):
+  with open(errfile, 'w') as ferr:
+    run(f'curl -X POST --data "{sequence}" https://api.esmatlas.com/foldSequence/v1/pdb/ > {outfile} --insecure', shell=True, stderr=ferr)
+  if not exists(outfile):
     exit(f"Error: pdb file for {header} not created.")
 
 
@@ -49,6 +55,7 @@ if __name__ == "__main__":
 
   # process fasta files
   for file in FASTA_FILES:
+    print(f"Processing {file}...")
     if not file.endswith(".fasta"):
       print(f"Error: {file} is not a FASTA file. Skipping.")
     else:
@@ -70,14 +77,18 @@ if __name__ == "__main__":
           # do not accept sequences greater than 400aa
           if len(seq) > 400: continue
 
+          # print what is being analyzed
+          print(f"\tAnalyzing {header}: {seq}")
+
           # run the curl function
-          outfile = f"{DIR}/{header}.pdb"
+          outfilepath = f"{DIR}/{header}"
           while True:
-            esm_curl_sequence(header, seq, outfile)
-            with open(outfile, 'r') as fpdb:
-              if fpdb.readline() != "{\"message\":\"Forbidden\"}":
+            esm_curl_sequence(header, seq, outfilepath)
+            with open(outfilepath, 'r') as fpdb:
+              if fpdb.readline().strip() != "{\"message\":\"Forbidden\"}":
                 break
-            # sleep for 30 minutes and try to run the curl function again
-            sleep(1800)
+            # sleep for 15 minutes and try to run the curl function again
+            print("Sleeping...")
+            sleep(900)
 
           print(f"Successfully ran ESMFold fold prediction on {header}.")

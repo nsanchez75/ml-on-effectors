@@ -158,10 +158,33 @@ This means I will have to create an environment that defines the 'pyarrow' and '
 
 I will create a script that will use the ESMFold API that implements the cheeze method I mentioned in line 121. Since I already have it available, I am going to update my `api_create_esmfolds.py` script from a while ago.
 
-I am going to run this script:
+<!-- I am going to run this script:
 
 ```bash
-time (python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> esmfold_api_test.log) &
+time (python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> esmfold_api_test.log) &> esmfold_api_test_time.log &
+``` -->
+
+(12/5/2023)
+
+After runnning it at around 9:00 am, I checked to see how the script was doing at around 10:40 am. I found that the script stopped running and that the resulting directory has a blank PDB file for this sequence:
+
+```text
+>Blac_SF5_v8_2_ORF39667_fr1 Blac_SF5_v8_2:872773..873234
+MLAVRIHRLRLRISRKRSQKQCNSCFCRQFQQDGTSCCKPESISAPGCARVFIDTAFKLHALPHELVSDRDSRFTAEFWQSVFREIGTRLTMTTSDYLETDGQTERVNHVHEEILRGYFQSYPNWSEFLPMVEIVINNSVHASTTHTPFFVNG*
 ```
 
-**TODO:** run the script above later (I'm waiting so that I can wait for the limit cooldown to finish in order to utilize the full potential of the API when performing the timing analysis)
+This is on lines 4021-4022 in `B_lac-SF5.protein.fasta`. This means that there were 2011 sequences analyzed. The directory has 2083 PDB files in it.
+
+I am going to run the curl method on it to test if the API is still working or if it is being limited at the moment:
+
+```bash
+curl -X POST --data "MLAVRIHRLRLRISRKRSQKQCNSCFCRQFQQDGTSCCKPESISAPGCARVFIDTAFKLHALPHELVSDRDSRFTAEFWQSVFREIGTRLTMTTSDYLETDGQTERVNHVHEEILRGYFQSYPNWSEFLPMVEIVINNSVHASTTHTPFFVNG" https://api.esmatlas.com/foldSequence/v1/pdb/ --insecure > test.pdb
+```
+
+I am noticing that the statistics of the curl function is sent using STDERR and the PDB file creation is sent to STDOUT, so I am going to separate them under the subprocess.
+
+Also, I am going to use this command instead of the previous one to run the API fetcher:
+
+```bash
+time python3 api_create_esmfolds.py B_lac-SF5.protein.fasta > esmfold_api_test.log 2> esmfold_api_time.log
+```
