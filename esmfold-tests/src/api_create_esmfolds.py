@@ -65,7 +65,7 @@ if __name__ == "__main__":
           seq = seq.replace('*', '')
           for c in seq:
             if c not in ALLOWED_CHARS:
-              exit(f"Error: Header {header} sequence {seq} contains a {c} character which is not allowed.")
+              exit(f"Error: Header {header} sequence {seq} contains a character which is not allowed.")
 
           # do not accept sequences greater than 400aa
           if len(seq) > 400: continue
