@@ -157,3 +157,9 @@ This means I will have to create an environment that defines the 'pyarrow' and '
 --------
 
 I will create a script that will use the ESMFold API that implements the cheeze method I mentioned in line 121. Since I already have it available, I am going to update my `api_create_esmfolds.py` script from a while ago.
+
+I am going to run this script:
+
+```bash
+python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> test.log &
+```
