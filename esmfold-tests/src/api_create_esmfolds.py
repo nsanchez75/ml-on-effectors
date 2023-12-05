@@ -1,3 +1,4 @@
+from datetime import datetime
 from os import makedirs
 from os.path import exists
 from time import sleep
@@ -19,7 +20,7 @@ PROGRAM INFO:
   Output: PDB files of predicted protein folds in a directory
 """
 
-def esm_curl_sequence(header: str, sequence: str)->None:
+def esm_curl_sequence(header: str, sequence: str, outfilename: str)->None:
   """
   A function to run ESMFold API on a sequence.
   """
@@ -31,7 +32,7 @@ def esm_curl_sequence(header: str, sequence: str)->None:
   # run ESMFold
   print(f"Running ESMFold fold prediction on {header}...")
   run(f'curl -X POST --data "{sequence}" https://api.esmatlas.com/foldSequence/v1/pdb/ > predicted_esmfolds/{header}.pdb --insecure', shell=True)
-  if not exists(f"predicted_esmfolds/{header}.pdb"):
+  if not exists(outfilename):
     exit(f"Error: pdb file for {header} not created.")
 
 
@@ -40,8 +41,11 @@ if __name__ == "__main__":
   if len(argv) == 1:
     exit("Error: Input of a FASTA file required.")
 
+  # grab inputs and create the directory
   FASTA_FILES = argv[1:]
-  makedirs("predicted_esmfolds", exist_ok=True)
+
+  DIR = f"predicted_esmfolds_" + datetime.now().strftime("%Y_%m_%d")
+  makedirs(DIR, exist_ok=True)
 
   # process fasta files
   for file in FASTA_FILES:
@@ -67,9 +71,10 @@ if __name__ == "__main__":
           if len(seq) > 400: continue
 
           # run the curl function
+          outfile = f"{DIR}/{header}.pdb"
           while True:
-            esm_curl_sequence(header, seq)
-            with open(f"predicted_esmfolds/{header}.pdb", 'r') as fpdb:
+            esm_curl_sequence(header, seq, outfile)
+            with open(outfile, 'r') as fpdb:
               if fpdb.readline() != "{\"message\":\"Forbidden\"}":
                 break
             # sleep for 30 minutes and try to run the curl function again
