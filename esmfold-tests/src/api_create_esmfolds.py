@@ -84,7 +84,7 @@ if __name__ == "__main__":
           outfilepath = f"{DIR}/{header}"
           while True:
             esm_curl_sequence(header, seq, outfilepath)
-            with open(outfilepath, 'r') as fpdb:
+            with open(outfilepath + ".pdb", 'r') as fpdb:
               if fpdb.readline().strip() != "{\"message\":\"Forbidden\"}":
                 break
             # sleep for 15 minutes and try to run the curl function again
