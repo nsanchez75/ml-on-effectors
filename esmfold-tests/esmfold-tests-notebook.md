@@ -82,7 +82,7 @@ Successfully ran ESMFold fold prediction on RXLR3B.
 - short reads on API
 - long reads using Kakawa GPU
 
-#### Further Tests on the API
+#### Further Usage of the API
 
 (12/4/2023)
 
@@ -161,5 +161,7 @@ I will create a script that will use the ESMFold API that implements the cheeze 
 I am going to run this script:
 
 ```bash
-python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> esmfold_api_test.log &
+time (python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> esmfold_api_test.log) &
 ```
+
+**TODO:** run the script above later (I'm waiting so that I can wait for the limit cooldown to finish in order to utilize the full potential of the API when performing the timing analysis)
