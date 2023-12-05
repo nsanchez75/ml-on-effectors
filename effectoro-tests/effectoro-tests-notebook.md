@@ -12,4 +12,10 @@ Ran EffectorO on `B_lac-SF5.protein.fasta` to test it and it works
 
 Created programs that would run EffectorO first and then SignalP and vice versa
 
-**TODO: Check in with Kelsey to see if I'm doing things properly (pipelines are in my frappe stuff)**
+## Extracting Stuff from Munir
+
+- CRN prediction (BlacSF5_CRN.hmm + get_CRN_seqs.sh)
+- WY-Domain prediction (WY_fold.hmm + get_WY_seqs.sh)
+- RXLR-EER prediction (whisson_et_al_rxlr_eer_cropped.hmm)
+- regex searcher for RXLR and EER (regex_searcher.py)
+  - **TODO:** change the name to RXLR-EER_regex_searcher.py

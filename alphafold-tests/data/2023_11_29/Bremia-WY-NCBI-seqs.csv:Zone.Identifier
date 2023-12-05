@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://cloudconvert.com/
+HostUrl=https://eu-central.storage.cloudconvert.com/tasks/0eee9cc3-1ad1-4f40-b734-f5dcf1a64bb1/Bremia-WY-NCBI-seqs.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20231203%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20231203T221520Z&X-Amz-Expires=86400&X-Amz-Signature=2d0505861979da05aa5e9a4a923f672d6157eec357346dd2eeff11e65e1105d1&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22Bremia-WY-NCBI-seqs.csv%22&response-content-type=text%2Fcsv&x-id=GetObject
