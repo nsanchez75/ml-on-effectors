@@ -161,5 +161,5 @@ I will create a script that will use the ESMFold API that implements the cheeze 
 I am going to run this script:
 
 ```bash
-python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> test.log &
+python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> esmfold_api_test.log &
 ```

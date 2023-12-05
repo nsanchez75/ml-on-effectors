@@ -31,7 +31,7 @@ def esm_curl_sequence(header: str, sequence: str, outfilename: str)->None:
 
   # run ESMFold
   print(f"Running ESMFold fold prediction on {header}...")
-  run(f'curl -X POST --data "{sequence}" https://api.esmatlas.com/foldSequence/v1/pdb/ > predicted_esmfolds/{header}.pdb --insecure', shell=True)
+  run(f'curl -X POST --data "{sequence}" https://api.esmatlas.com/foldSequence/v1/pdb/ > {outfilename} --insecure', shell=True)
   if not exists(outfilename):
     exit(f"Error: pdb file for {header} not created.")
 
