@@ -593,3 +593,41 @@ Here is a [link](https://saturncloud.io/blog/how-to-run-google-colab-locally-a-s
 #### Linking NCBI IDs to AF IDs
 
 To do this, I downloaded an excel file called `Bremia-WY-NCBI-seqs.xlsx` that contains NCBI IDs of some protein sequences from Kelsey. Kelsey wanted me to map these sequences to their AF IDs. For this, I used [this website](https://www.uniprot.org/id-mapping) to first map the NCBI IDs to their Uniprot ID counterparts; this is because AF IDs use Uniprot IDs as a part of their naming scheme. This resulted in the fasta file `ncbi-id_to_unprot-id_2023_11_28.fasta`.
+
+(12/6/2023)
+
+I moved the following files into the data directory 2023_12_06:
+
+1. `Bremia-WY-NCBI-seqs.csv`: contains all of the WY-Domain sequences from NCBI
+2. `blastp_output_AF-ID_ncbi-proteins.filtered_best_hits.txt`: info on line 324 under header "BLASTp on NCBI Genome + AF IDs"
+3. `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv`: the table we've been dealing with for this entire experiment
+
+I am going to concatenate files 1 and 3 by using the AF <-> NCBI information provided in file 2. First I need to extract just the AF to NCBI info from file 2:
+
+```bash
+awk -F'\t' '{print $1 $2}' Bremia-WY-NCBI-seqs.csv | tail -n +2 > blac_WY_NCBI-seqs.link.list
+```
+
+ Here is the script:
+
+```bash
+
+```
+
+### Unpickling a File
+
+(12/6/2023)
+
+Kelsey wanted me to unpickle a pickled file. I created the Python script `unpickle.py` that does this. I also ran this command which reformats the file to look better:
+
+```bash
+python3 unpickle.py features.pkl | less -S > features_unpickled.txt
+```
+
+### Getting AF Information from Kyle
+
+I am trying to use the find command to find any databases that involves AlphaFold. Here is the command:
+
+```bash
+find /share/rwmwork/fletcher/ -exec grep -Ei '^(af|alphafold|afold)\w*$' {} + > fletcherdir_af_stuff.log
+```

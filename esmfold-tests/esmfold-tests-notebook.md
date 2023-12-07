@@ -31,13 +31,15 @@ Tried to download repo, create Conda environment, etc.
 
 Ran into an issue with "OpenFold" module not being able to be downloaded.
 
-## Using Ian Anderson's Code
+(12/5/2023)
 
-### Before 10/19/2023
+I am recreating the conda environment so that I can log what exactly went wrong before.
+
+### Using Ian Anderson's Code
 
 Tried running Anderson's code. However, "OpenFold" module issue is happening again.
 
-Found an email from Kelsey about working ssh into Kakawa so I'll try to run the code on Kakawa instead
+Found an email from Kelsey about working ssh into Kakawa so I'll try to run the code on Kakawa instead.
 
 ## Experiments: Data & Results
 
@@ -105,8 +107,6 @@ However this produces this output:
 Sequence is longer than 400.
 ```
 
-which makes no sense because according to the ESMFold Colab notebook, "For short monomeric proteins under the length 400, consider using ESMFold API." Kinda dumb.
-
 Using the archived API outputs from October 10th (now copied into a directory under data/2023_10_10), I am analyzing how many files the API can detect before it stops properly analyzing the sequence. Here are some commands I am using to analyze the directory:
 
 ```bash
@@ -152,7 +152,9 @@ Trying to import the above resulted in these errors:
 
 This means I will have to create an environment that defines the 'pyarrow' and 'fastparquet' dependencies; I'm going to use conda.
 
-**TODO:** create a Conda environment to access the ESMFold metadata
+(12/5/2023)
+
+I created a conda environment with `esmfold_metadata.yml`.
 
 --------
 
@@ -188,3 +190,5 @@ Also, I am going to use this command instead of the previous one to run the API 
 ```bash
 time python3 api_create_esmfolds.py B_lac-SF5.protein.fasta > esmfold_api_test.log 2> esmfold_api_time.log
 ```
+
+**TODO:** figure out how to get the pTM score for the PDBs.
