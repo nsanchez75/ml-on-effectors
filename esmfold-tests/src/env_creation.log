@@ -1,0 +1,22 @@
+WARNING conda.models.version:get_matcher(542): Using .* with relational operator is superfluous and deprecated and will be removed in a future version of conda. Your spec was 1.9.0.*, but conda is ignoring the .* and treating it as 1.9.0
+WARNING conda.models.version:get_matcher(542): Using .* with relational operator is superfluous and deprecated and will be removed in a future version of conda. Your spec was 1.6.0.*, but conda is ignoring the .* and treating it as 1.6.0
+WARNING conda.models.version:get_matcher(542): Using .* with relational operator is superfluous and deprecated and will be removed in a future version of conda. Your spec was 1.8.0.*, but conda is ignoring the .* and treating it as 1.8.0
+WARNING conda.models.version:get_matcher(542): Using .* with relational operator is superfluous and deprecated and will be removed in a future version of conda. Your spec was 1.7.1.*, but conda is ignoring the .* and treating it as 1.7.1
+
+
+==> WARNING: A newer version of conda exists. <==
+  current version: 22.9.0
+  latest version: 23.11.0
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+WARNING conda.core.path_actions:verify(962): Unable to create environments file. Path not writable.
+  environment location: /home/nsanc/.conda/environments.txt
+
+
+[Errno 13] Permission denied: '/home/nsanc/.conda/environments.txt'
+()
+
