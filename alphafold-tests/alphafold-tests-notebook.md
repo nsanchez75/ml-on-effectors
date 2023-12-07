@@ -594,24 +594,43 @@ Here is a [link](https://saturncloud.io/blog/how-to-run-google-colab-locally-a-s
 
 To do this, I downloaded an excel file called `Bremia-WY-NCBI-seqs.xlsx` that contains NCBI IDs of some protein sequences from Kelsey. Kelsey wanted me to map these sequences to their AF IDs. For this, I used [this website](https://www.uniprot.org/id-mapping) to first map the NCBI IDs to their Uniprot ID counterparts; this is because AF IDs use Uniprot IDs as a part of their naming scheme. This resulted in the fasta file `ncbi-id_to_unprot-id_2023_11_28.fasta`.
 
-(12/6/2023)
+(12/6/2023-12/7/2023)
 
-I moved the following files into the data directory 2023_12_06:
+I moved the following files into the data directory 2023_12_06. I am focusing primarily on WY sequences first:
 
 1. `Bremia-WY-NCBI-seqs.csv`: contains all of the WY-Domain sequences from NCBI
+    - headers: NCBI_ID_SF5, NCBI_Transcript, Protein_name, Protein_sequence, length
 2. `blastp_output_AF-ID_ncbi-proteins.filtered_best_hits.txt`: info on line 324 under header "BLASTp on NCBI Genome + AF IDs"
+    - talk about headers beginning on line 614
 3. `blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv`: the table we've been dealing with for this entire experiment
+    - headers: best_blast_hit_AF_ID, ORF_seq_ID, ...
 
 I am going to concatenate files 1 and 3 by using the AF <-> NCBI information provided in file 2. First I need to extract just the AF to NCBI info from file 2:
 
 ```bash
-awk -F'\t' '{print $1 $2}' Bremia-WY-NCBI-seqs.csv | tail -n +2 > blac_WY_NCBI-seqs.link.list
+awk -F'\t' '{print $1 "\t" $2}' blastp_output_AF-ID_ncbi-proteins.filtered_best_hits.txt | tail -n +2 > blac_WY_NCBI-seqs_linked.tsv
 ```
 
- Here is the script:
+The resulting table has no headers, so I am going to use this Python shell script to give it the necessary headers:
 
 ```bash
+python3
+>>> import pandas as pd
+>>> df = pd.read_table("blac_WY_NCBI-seqs_linked.tsv", sep='\t', header=0, names=["NCBI_ID_SF5", "best_blast_hit_AF_ID"]) # these are the headers
+>>> df.to_csv("blac_WY_NCBI-seqs_linked_with-headers.tsv", sep='\t', index=False)
+```
 
+**TODO:** Update script so that it produces the list needed here (make new simple script that grabs this info)
+
+I am going to use the Python shell with Pandas to link the two dataframes together
+
+```bash
+python3
+>>> import pandas as pd
+>>> df1 = pd.readcsv("Bremia-WY-NCBI-seqs.csv")
+>>> df2 = pd.readcsv("blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv", sep='\t')
+>>> dflink = pd.readcsv("blac_WY_NCBI-seqs_linked.tsv", sep='\t')
+>>> df_combine = 
 ```
 
 ### Unpickling a File
