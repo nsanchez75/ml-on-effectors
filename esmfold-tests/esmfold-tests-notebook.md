@@ -192,3 +192,36 @@ time python3 api_create_esmfolds.py B_lac-SF5.protein.fasta > esmfold_api_test.l
 ```
 
 **TODO:** figure out how to get the pTM score for the PDBs.
+
+#### Running ESMFold Colab on WY-Domain
+
+(12/7/2023)
+
+Kelsey gave me an excel sheet (which I converted from xslx -> csv) called `Bremia-WY-NCBI-seqs.csv`. I isolated the NCBI IDs and sequences into a file called `Bremia-WY_NCBI-ID_seqs.tsv`. I am running the ESMFold Colab on each sequence and putting their results `into data/2023_12_07/esmfold_colab_results`. There are a total of 60 sequences provided and I am also going to run these sequences until Colab tells me to upgrade. All options specified in the ESMFold Colab by default are used:
+
+- version: 1
+- copies: 1
+- num_recycles: 3
+- color: confidence
+- uncheck show_sidechains and show_mainchains
+- dpi: 100
+
+note: ESMFold removes the '.' in the NCBI sequence so remember to keep this in mind later.
+
+Since the ESMFold Colab can only work on sequences up to ~900 aas, I may not be able to run it on the last 5ish sequences in the file.
+
+I am using this in the `esmfold_colab_results` directory to determine if I missed any sequences when running them on Colab:
+
+```bash
+ls | awk -F'_' '{print $1}' | sed 's/1$/.1/' | less
+```
+
+(12/8/2023)
+
+My school account ran out of free GPU usage, but I was able to bypass it by using my personal account. In the end, I managed to get all the sequences except for {TDH72527.1, TDH69657.1, TDH69683.1} since they were well over 900aa.
+
+I made sure I got all of the sequences by running this code:
+
+```bash
+diff <(ls | awk -F'_' '{print $1}' | sed 's/1$/.1/' | sort) <(awk -F'\t' '{print $1}' ../Bremia-WY_NCBI-ID_seqs.tsv | tail -n +2 | sort)
+```

@@ -622,6 +622,7 @@ python3
 
 **TODO:** Update script so that it produces the list needed here (make new simple script that grabs this info)
 
+<!--
 I am going to use the Python shell with Pandas to link the two dataframes together
 
 ```bash
@@ -631,6 +632,13 @@ python3
 >>> df2 = pd.readcsv("blastp_output_db_B_lac-SF5_q_blac-uniprot_on_WY-Domain_SP_CRN-motif_predicted-effectors-ov-85_RXLR-EER.tsv", sep='\t')
 >>> dflink = pd.readcsv("blac_WY_NCBI-seqs_linked.tsv", sep='\t')
 >>> df_combine = 
+```
+-->
+
+I created a script that links two tables together using a 2-column table as a linker. Here is the command using it:
+
+```bash
+python3 merge_tables_with_linker.py
 ```
 
 ### Unpickling a File
