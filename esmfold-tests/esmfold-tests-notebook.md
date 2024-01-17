@@ -134,7 +134,7 @@ When trying to run it in the background, it prevented me from using the CLI agai
 
 Here is the result of me trying to run the mentioned use of pandas via the python3 shell:
 
-```text
+```python
 >>> import pandas as pd
 >>> df = pd.read_parquet('metadata.parquet')
 Traceback (most recent call last):
@@ -156,15 +156,33 @@ This means I will have to create an environment that defines the 'pyarrow' and '
 
 I created a conda environment with `esmfold_metadata.yml`.
 
+(01/09/2024)
+
+I checked to see if the esmfold-metadata environment contains 'pyarrow' and 'fastparquet' and they are:
+
+- fastparquet 2023.10.1
+- pyarrow 14.0.1
+
+I reran the command previously attempted:
+
+```python
+>>> import pandas as pd
+>>> df = pd.read_parquet('metadata-rc2.parquet') # corrected from error in previous .parquet name
+```
+
+It is taking a while, presumably because the dataframe is being created from parsing 16 GB of data. Additionally, I looked into MGnify, of which its IDs are what ESMFold use for sequence identification in its database, and I was unable to find any lettuce or Bremia lactucae sequences. Thus, I believe that I should not continue working on ESMFold's metadata for the time being.
+
 --------
 
 I will create a script that will use the ESMFold API that implements the cheeze method I mentioned in line 121. Since I already have it available, I am going to update my `api_create_esmfolds.py` script from a while ago.
 
-<!-- I am going to run this script:
+<!--
+I am going to run this script:
 
 ```bash
 time (python3 api_create_esmfolds.py B_lac-SF5.protein.fasta &> esmfold_api_test.log) &> esmfold_api_test_time.log &
-``` -->
+```
+-->
 
 (12/5/2023)
 

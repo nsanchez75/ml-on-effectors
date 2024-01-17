@@ -16,7 +16,7 @@ import os
 #       - EffectorO score
 #       - best hit AF-uniprot ID
 #       - BLASTp information between AF-uniprot ID and ORF ID
-#       - summary log for all combinations of headers
+#       - summary log for all combinations of headers (TODO: fix)
 
 # argument parser
 parser = argparse.ArgumentParser(prog="Create ORF ID Table",
