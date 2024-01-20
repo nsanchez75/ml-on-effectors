@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import subprocess
 import os
+import shutil
 
 def detect_categorization(fasta: str, hmm_path: str):
   '''
@@ -16,9 +17,23 @@ def detect_categorization(fasta: str, hmm_path: str):
   categorization associated with the input HMMs.
   '''
 
-  hmm_results = subprocess.run(args=["hmmsearch", "--incT", '0', "--incdomT", '0', "--noali", hmm_path])
-  hmm_results = hmm_results.stdout.decode()
-  print(hmm_results)
+  # get fasta basename and categorization name
+  fasta_name = fasta[fasta.rfind('/')+1:fasta.find('.')]
+  category_name = hmm_path[hmm_path.rfind('/')+1:].replace(".hmm",'')
+
+  # run hmmsearch using a provided HMM
+  hmm_results = subprocess.run(args=["hmmsearch", "--incT", "0", "--incdomT", "0", "--noali", hmm_path, fasta], stdout=subprocess.PIPE).stdout.decode()
+  
+  # iterate through lines to extract identified classifications
+  results_file = f"seq_categorization_results/{fasta_name}_{category_name}_list.txt"
+  with open(results_file, 'w') as fres:
+    for line in hmm_results.split('\n'):
+      line = line.strip().split()
+      
+      if not line or not line[0]: continue
+      if line[0] == ">>":
+        fres.write(f"{line[1]}\n")
+
 
 def main():
   parser = ArgumentParser(prog="Identify Sequence Categorizations",
@@ -42,10 +57,17 @@ def main():
   input_fasta_file = args.input
   hmm_dir_path = args.hmm_dir
 
+  # create/overwrite sequence categorization directory
+  if os.path.exists("seq_categorization_results"):
+    print("Warning: 'seq_categorization_results' directory identified. Overwriting...")
+    shutil.rmtree("seq_categorization_results")
+  os.makedirs("seq_categorization_results", exist_ok=False)
+
   # get filenames from HMM directory
   hmm_filenames = os.listdir(hmm_dir_path)
   for filename in hmm_filenames:
-    detect_categorization(input_fasta_file, f"{hmm_dir_path}/{filename}")
+    if filename[-4:] == '.hmm':
+      detect_categorization(input_fasta_file, f"{hmm_dir_path}/{filename}")
 
 
 if __name__ == "__main__":
