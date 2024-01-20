@@ -35,11 +35,54 @@ Ran into an issue with "OpenFold" module not being able to be downloaded.
 
 I am recreating the conda environment so that I can log what exactly went wrong before.
 
+(1/18/2024)
+
+I forgot to add the link to the GitHub repo so [here it is](https://github.com/facebookresearch/esm).
+
 ### Using Ian Anderson's Code
 
 Tried running Anderson's code. However, "OpenFold" module issue is happening again.
 
 Found an email from Kelsey about working ssh into Kakawa so I'll try to run the code on Kakawa instead.
+
+(1/18/2024)
+
+I received news from Kelsey that Ian made it so that all members of the Michelmore lab should have access to kakawa. However, I am going to see if it is possible to utilize the GPU.
+
+Here is the code to run Ian's code:
+
+```bash
+conda activate esmfold # environment created from provided environment.yml from the ESMFold GitHub: https://github.com/facebookresearch/esm/blob/main/environment.yml
+python3 kakawaESM.py seqs_to_test.fasta test_output_dir &> test_kakawaESM.log
+```
+
+Here is what is in 'seqs_to_test.fasta':
+
+```text
+>RXLR3
+MPRCLAVLSFALFTCCIDASTAADAAKVKMLTQSRYPGTVDRIEKVARFLRSHSMDEAEEERLSIWTSFKELLFGGPFSPTRLRAMTADNAVVQFTFSAWNKFSHDDIRKLLAEGMKDMDKQEKEKLNSIIELYFMIRGPD*
+>RXLR3B
+MLRCLVTIAFTFALFIETLTATEAANVKILTQSRQPKAVDRTINVIRFLRSHSINEAAEERLNVWACLEELLIGGPFSQARLSAMTGDNEIVKLTFSAWNKFSHDDIRNLLAHGMKDMDIREKEMLSSIINLYFLIRGAQ*
+```
+
+After running the code, this error occurred:
+
+```text
+Traceback (most recent call last):
+  File "kakawaESM.py", line 4, in <module>
+    import esm
+ModuleNotFoundError: No module named 'esm'
+```
+
+To fix this, I am following the processes to install the esm module from [this part](https://github.com/facebookresearch/esm/tree/main?tab=readme-ov-file#quick-start-) of the ESMFold GitHub repository.
+
+### Conda bio-embeddings-esm
+
+There is [this conda package](https://anaconda.org/conda-forge/bio-embeddings-esm) that could download the esm module onto conda. I will give it a try:
+
+```text
+conda install conda-forge::bio-embeddings-esm
+```
 
 ## Experiments: Data & Results
 

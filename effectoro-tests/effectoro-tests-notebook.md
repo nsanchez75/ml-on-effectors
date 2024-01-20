@@ -78,3 +78,26 @@ hint: See above for output from the failure.
 ```
 
 My hunch is that this issue is caused by the incompatibility between the provided scikit-learn version in the requirements text file and the currently run Python version (3.10.12). Based on previous conversations with Kelsey as well as through emails Kelsey provided of Kyle talking about this issue, the scikit-learn version only works with Python version 3.6. After some Googling, I found out that you need to install Python 3.6 onto your computer and then produce the venv while running in version 3.6. I may do this later, but for now I will stick to using the Conda environment I already created.
+
+(1/8-16-2024)
+
+I successfully created a conda environment that allows me to successfully run and test the EffectorO website. So far, I have managed to compartmentalize and optimize the scripts to make working on the website much easier to work on. I also created a YAML file `effectoro.yml` that will allow me to run the website anywhere (as long as conda is available on the system, which lowkey is not something to really rely on based on how hard it is to configure lol).
+
+I've heard from one of my CS courses (ECS 193A) that it is best to not rely on frameworks when creating software. This has started to make me consider getting rid of EffectorO's dependency on Bootstrap and to just use simple CSS for styling.
+
+## Creating a Script to Detect Known Effectors
+
+(1/18/2024)
+
+There are a couple of scripts created by Munir that filter sequences that are predicted to be certain categorizations:
+
+- get_CRN_seqs.sh
+- get_WY_seqs.sh
+- run_RXLR_HMM.sh
+- runSignalP.sh
+
+I plan on creating a script that utilizes all of these scripts to produce a list of sequences that are predictably identified as a particular categorization. For this, I am creating a Python script called `identify_seq_categorization.py` to perform this function.
+
+<!-- I found that in the lab server, the hmmer/3.1b2 module version was being used. There is a [Biopython package](https://biopython.org/docs/1.75/api/Bio.SearchIO.HmmerIO.html?highlight=hmmsearch) that talks about HMMER3 so maybe this could be useful. I am going to create a virtual environment in the `src/sequence_categorization` directory that will allow me to continue developing the categorization script using the Bio module. -->
+
+I am looking through Munir;s 
