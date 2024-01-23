@@ -134,6 +134,26 @@ These worked! Now I am going to run Ian's code.
 
 Now I'm having even more issues than before. This most recent issue will be named `test_kakawaESM_2024_1_22.log` and it is a long one.
 
+I am now going to try to run the `submit_esm.sh` script:
+
+```bash
+./submit_esm.sh seqs_to_test.fasta test_output_dir &> test_kakawaESM.log
+```
+
+Now I am getting this error:
+
+```bash
+/toolbox/envs/esm/bin/python: can't find '__main__' module in '/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22'
+```
+
+There isn't an
+
+```python
+if __name__ == "__main__":
+```
+
+statement in `kakawaESM.py` so I added one. I just realized it was an error in which I didn't add kakawaESM.py to the end of the path.
+
 ### Conda bio-embeddings-esm
 
 (1/18/2024)
