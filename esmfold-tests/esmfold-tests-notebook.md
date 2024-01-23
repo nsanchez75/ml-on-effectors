@@ -45,8 +45,6 @@ Tried running Anderson's code. However, "OpenFold" module issue is happening aga
 
 Found an email from Kelsey about working ssh into Kakawa so I'll try to run the code on Kakawa instead.
 
-(1/18/2024)
-
 I received news from Kelsey that Ian made it so that all members of the Michelmore lab should have access to kakawa. However, I am going to see if it is possible to utilize the GPU.
 
 Here is the code to run Ian's code:
@@ -76,13 +74,79 @@ ModuleNotFoundError: No module named 'esm'
 
 To fix this, I am following the processes to install the esm module from [this part](https://github.com/facebookresearch/esm/tree/main?tab=readme-ov-file#quick-start-) of the ESMFold GitHub repository.
 
+(1/22/2023)
+
+I cloned the Facebook GitHub repo in order to grab the esm folder. Now with the esm folder in the proper place, we can test the previous code again. This is the new error I get:
+
+```text
+Traceback (most recent call last):
+  File "kakawaESM.py", line 27, in <module>
+    model = esm.pretrained.esmfold_v1()
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/pretrained.py", line 419, in esmfold_v1
+    import esm.esmfold.v1.pretrained
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/esmfold/v1/pretrained.py", line 10, in <module>
+    from esm.esmfold.v1.esmfold import ESMFold
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/esmfold/v1/esmfold.py", line 17, in <module>
+    from esm.esmfold.v1.misc import (
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/esmfold/v1/misc.py", line 10, in <module>
+    from einops import rearrange, repeat
+  File "/share/rwmwork/nsanc/conda/envs/esmfold/lib/python3.7/site-packages/einops/__init__.py", line 14, in <module>
+    from .einops import rearrange, reduce, repeat, einsum, parse_shape, asnumpy
+  File "/share/rwmwork/nsanc/conda/envs/esmfold/lib/python3.7/site-packages/einops/einops.py", line 807
+    def einsum(tensor: Tensor, pattern: str, /) -> Tensor:
+                                             ^
+SyntaxError: invalid syntax
+```
+
+Looking at the error message, it appears that there is an issue with the einops package in conda. I am going to try re-installing/updating [einops](https://anaconda.org/esri/einops) in the esmfold environment.
+
+Here is a [GitHub issue](https://github.com/facebookresearch/esm/issues/626) about this. It says to downgrade einops to version 0.61 because the syntax above was created with Python 3.8's syntax in mind.
+
+```bash
+conda install -c conda-forge einops=0.6.1
+```
+
+The old issue has been resolved. However, a new (old) issue has arisen:
+
+```text
+Traceback (most recent call last):
+  File "kakawaESM.py", line 27, in <module>
+    model = esm.pretrained.esmfold_v1()
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/pretrained.py", line 419, in esmfold_v1
+    import esm.esmfold.v1.pretrained
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/esmfold/v1/pretrained.py", line 10, in <module>
+    from esm.esmfold.v1.esmfold import ESMFold
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/esmfold/v1/esmfold.py", line 17, in <module>
+    from esm.esmfold.v1.misc import (
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/esm/esmfold/v1/misc.py", line 12, in <module>
+    from openfold.np import residue_constants
+ModuleNotFoundError: No module named 'openfold'
+```
+
+I will try running these commands from the ESM GitHub while using kakawa-0:
+
+```bash
+pip install 'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
+pip install 'openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307'
+```
+
+These worked! Now I am going to run Ian's code.
+
+Now I'm having even more issues than before. This most recent issue will be named `test_kakawaESM_2024_1_22.log` and it is a long one.
+
 ### Conda bio-embeddings-esm
+
+(1/18/2024)
 
 There is [this conda package](https://anaconda.org/conda-forge/bio-embeddings-esm) that could download the esm module onto conda. I will give it a try:
 
 ```text
 conda install conda-forge::bio-embeddings-esm
 ```
+
+(1/22/2024)
+
+I removed esm and stuck with this package being installed; unfortunately, it wouldn't work.
 
 ## Experiments: Data & Results
 

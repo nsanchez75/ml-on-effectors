@@ -100,4 +100,14 @@ I plan on creating a script that utilizes all of these scripts to produce a list
 
 <!-- I found that in the lab server, the hmmer/3.1b2 module version was being used. There is a [Biopython package](https://biopython.org/docs/1.75/api/Bio.SearchIO.HmmerIO.html?highlight=hmmsearch) that talks about HMMER3 so maybe this could be useful. I am going to create a virtual environment in the `src/sequence_categorization` directory that will allow me to continue developing the categorization script using the Bio module. -->
 
-I am looking through Munir;s 
+(1/19/2024)
+
+I am looking through Munir's files and found the 'temp' output file after running hmmsearch on a file (I copied the file into the data directory). I am going to use subprocess on my script to produce the output and transorm it into a list.
+
+I added the [hmmer package](https://anaconda.org/bioconda/hmmer) and Python to the effectoro-analysis conda environment.
+
+I finished the first implementation of the code. It requires the hmmer package from conda as a dependency, so the ORF pipeline is going to require it as a dependency.
+
+## Refactoring EffectorO Analysis Code (from R to Python)
+
+I know more about Python, and I personally think that Python is easier to use than R, so I am going to refactor the R code into a Python format. The new script will be named `analyze_effectoro_results.python`, which I think is a slightly more detailed description of what it does. This script will also be found under the effectorO_analysis directory.
