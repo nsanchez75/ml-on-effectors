@@ -42,10 +42,13 @@ def main():
                                        prediction via a Hidden Markov Model. \
                                        Warning: This script requires that \
                                        PyHMMR is installed.")
-  parser.add_argument("--input", '-I',
-                      type=str, help="Input FASTA file",
+  parser.add_argument("--input",
+                      '-I',
+                      type=str,
+                      help="Input FASTA file",
                       required=True)
-  parser.add_argument("--hmm_dir", '-H',
+  parser.add_argument("--hmm_dir",
+                      '-H',
                       type=str,
                       help="Path to directory containing category HMMs to be \
                             used (must either be absolute or relative to the \
