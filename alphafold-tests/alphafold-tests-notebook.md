@@ -262,8 +262,6 @@ cat blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt | tail -n +
 
 ----
 
-##### Figuring out why there are missing AF IDs
-
 (11/29/2023)
 
 There are some missing AF IDs in the filtered BLASTp output. According to `af_entry-ids_for_blac-sf5.csv`, there are 8952 entries; however, there are 7973 entries in `blastp_output_db_B_lac-SF5_q_blac-uniprot.filtered_best_hits.txt`. I ran this in the CLI to determine what AF IDs were missing:
@@ -448,15 +446,15 @@ Kelsey says that the summary table should look more like this:
 
 | No SP |  |
 | ----- | - |
-| Predicted non-effector (no RXLR, WY, CRN, EffO) | 6374
-| Predicted effector (EffectorO > 0.85) | 484
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 6374 |
+| Predicted effector (EffectorO > 0.85) | 484 |
 
 | SP |  |
 | ----- | - |
-| Predicted non-effector (no RXLR, WY, CRN, EffO) | 943
-| CRN-motif | 21
-| WY-Domain | 40
-| EffectorO (>0.85) | 52
+| Predicted non-effector (no RXLR, WY, CRN, EffO) | 943 |
+| CRN-motif | 21 |
+| WY-Domain | 40 |
+| EffectorO (>0.85) | 52 |
 
 | Total |
 | ----- |

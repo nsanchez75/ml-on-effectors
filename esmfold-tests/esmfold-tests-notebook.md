@@ -140,19 +140,66 @@ I am now going to try to run the `submit_esm.sh` script:
 ./submit_esm.sh seqs_to_test.fasta test_output_dir &> test_kakawaESM.log
 ```
 
-Now I am getting this error:
+(1/24/2024)
+
+I have been looking through the differences between kakawa-0's esm environment and my ESMFold environment. Most things in my environment appear to be newer package versions; however, I noticed that `fair-esm` is a package found in esm and not my environment.
+
+I ran ESMFold again on kakawa-0 and it now works. Based on this error that I had emailed Kelsey earlier:
+
+```text
+Traceback (most recent call last):
+  File "/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/kakawaESM.py", line 30, in <module>
+    model = model.eval().cuda()
+  File "/toolbox/envs/esm/lib/python3.7/site-packages/torch/nn/modules/module.py", line 689, in cuda
+    return self._apply(lambda t: t.cuda(device))
+  File "/toolbox/envs/esm/lib/python3.7/site-packages/torch/nn/modules/module.py", line 579, in _apply
+    module._apply(fn)
+  File "/toolbox/envs/esm/lib/python3.7/site-packages/torch/nn/modules/module.py", line 579, in _apply
+    module._apply(fn)
+  File "/toolbox/envs/esm/lib/python3.7/site-packages/torch/nn/modules/module.py", line 579, in _apply
+    module._apply(fn)
+  [Previous line repeated 2 more times]
+  File "/toolbox/envs/esm/lib/python3.7/site-packages/torch/nn/modules/module.py", line 602, in _apply
+    param_applied = fn(param)
+  File "/toolbox/envs/esm/lib/python3.7/site-packages/torch/nn/modules/module.py", line 689, in <lambda>
+    return self._apply(lambda t: t.cuda(device))
+RuntimeError: CUDA out of memory. Tried to allocate 20.00 MiB (GPU 0; 79.15 GiB total capacity; 6.38 GiB already allocated; 3.44 MiB free; 6.59 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+```
+
+the Runtime Error seems like the GPU had been working on someone else's scripts at the same time, which could have prevented me from using it.
+
+Kelsey also mentioned that SLURM will allow me to schedule the script to run when space is available. Additionally, SLURM requires paths to be absolute. Thus, this will be the new script
 
 ```bash
-/toolbox/envs/esm/bin/python: can't find '__main__' module in '/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22'
+sbatch submit_esm.sh /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/seqs_to_test.fasta /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/data/2024_01_18-22/test_outdir
 ```
 
-There isn't an
+I get this error:
 
-```python
-if __name__ == "__main__":
+```text
+sbatch: error: Batch job submission failed: Invalid account or account/partition combination specified
 ```
 
-statement in `kakawaESM.py` so I added one. I just realized it was an error in which I didn't add kakawaESM.py to the end of the path.
+but this is just because I am not allowed to utilize the Siegel Lab's GPU. So instead I have to use the public GPU partition.
+
+I am editing the kakawa script to potentially grab the PTM score data, which is done in the ESM Colab script. I am going to try to use the code from there:
+
+```bash
+ with torch.no_grad():
+        for name, sequence in proteins:
+            chunk_size = set_chunk_size_based_on_length(len(sequence))
+            if chunk_size is not None:
+                model.set_chunk_size(chunk_size)
+            output = model.infer(sequence,
+                                 num_recycles=3,
+                                 chain_linker="X"*25,
+                                 residue_index_offset=512)  # modified from infer_pdb(sequence)
+            ptm = output["ptm"][0] # new
+            with open(os.path.join(output_directory, f"{name}_{ptm}.pdb"), "w") as f: # added pTM to filename
+                f.write(model.output_to_pdb(output)[0]) # modified
+```
+
+and it works!
 
 ### Conda bio-embeddings-esm
 
