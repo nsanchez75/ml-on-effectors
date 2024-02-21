@@ -656,3 +656,10 @@ I am trying to use the find command to find any databases that involves AlphaFol
 ```bash
 find /share/rwmwork/fletcher/ -exec grep -Ei '^(af|alphafold|afold)\w*$' {} + > fletcherdir_af_stuff.log
 ```
+
+## Log
+
+2/21/2024
+
+- changed `create_ORF-ID_table.py` to `create_ORF_ID_table.py`
+- changed `analyze_ORF-ID_table.py` to `analyze_ORF_ID_table.py`
