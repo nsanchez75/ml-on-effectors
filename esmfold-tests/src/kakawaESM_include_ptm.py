@@ -43,5 +43,5 @@ if __name__ == "__main__":
                                  chain_linker="X"*25, # hard-coded
                                  residue_index_offset=512)
             ptm = output["ptm"][0]
-            with open(os.path.join(output_directory, f"{name}_{ptm}.pdb"), "w") as f:
+            with open(os.path.join(output_directory, "{}_{}.pdb".format(name, ptm)), "w") as f:
                 f.write(model.output_to_pdb(output)[0])
