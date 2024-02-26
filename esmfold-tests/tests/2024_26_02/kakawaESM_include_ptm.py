@@ -4,7 +4,6 @@ import os
 import torch
 import esm
 
-
 def parse_fasta(file_path):
     with open(file_path, "r") as f:
         entries = f.read().split(">")[1:]
@@ -18,6 +17,7 @@ def set_chunk_size_based_on_length(length):
         return 128
     else:
         return 64
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(prog="Python script that runs ESM on kakawa")
