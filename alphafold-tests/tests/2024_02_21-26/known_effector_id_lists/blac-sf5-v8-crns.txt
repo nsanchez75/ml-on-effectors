@@ -1,4 +1,4 @@
-# CRN_motif
+# CRN-motif
 Blac_SF5_v8_136_ORF1116408_fr2
 Blac_SF5_v8_136_ORF1116118_fr1
 Blac_SF5_v8_136_ORF1115381_fr2

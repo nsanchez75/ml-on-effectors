@@ -5,7 +5,7 @@ Non-Secreted (no SP):
 		with WY-domain: 0
 	WY-domain: 0
 		with RXLR-EER: 0
-	CRN_motif: 0
+	CRN-motif: 0
 	Total Non-Secreted: 6910
 Secreted (SP):
 	Predicted non-effectors: 916
@@ -14,6 +14,6 @@ Secreted (SP):
 		with WY-domain: 13
 	WY-domain: 43
 		with RXLR-EER: 13
-	CRN_motif: 24
+	CRN-motif: 24
 	Total Secreted: 1062
 Total: 7972

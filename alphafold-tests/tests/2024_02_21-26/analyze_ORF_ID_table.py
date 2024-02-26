@@ -94,20 +94,20 @@ def main():
           case "WY-domain":
             # count number including RXLR-EER
             if "RXLR-EER" in HEADERS_WO_SP:
-                wy__rxlr_eer__count = len(df[HEADER_COUNT_CONDITION & df["RXLR-EER"].astype(int) == 1])
+                wy__rxlr_eer__count = len(df[(HEADER_COUNT_CONDITION) & (df["RXLR-EER"].astype(int) == 1)])
                 flog_lines.append(f"\t\twith RXLR-EER: {wy__rxlr_eer__count}\n")
             # shouldn't have CRN
             if "CRN-motif" in HEADERS_WO_SP:
-              if len(df[HEADER_COUNT_CONDITION & df["CRN-motif"].astype(int) == 1]):
+              if len(df[(HEADER_COUNT_CONDITION) & (df["CRN-motif"].astype(int) == 1)]):
                 raise ValueError("One/more sequences with WY-domain also has CRN-motif. This shouldn't happen.")
           case "CRN-motif":
             # shouldn't have WY or RXLR-EER
             if all(i in HEADERS_WO_SP for i in ["WY-domain", "RXLR-EER"]):
-              if len(df[HEADER_COUNT_CONDITION & df["WY-domain"].astype(int) == 1 & df["RXLR-EER"].astype(int) == 1]):
+              if len(df[(HEADER_COUNT_CONDITION) & (df["WY-domain"].astype(int) == 1) & (df["RXLR-EER"].astype(int) == 1)]):
                 raise ValueError("One/more sequences with CRN-motif has either WY-domain, RXLR-EER, or both. This shouldn't happen.")
           case "RXLR-EER":
             if "WY-domain" in HEADERS_WO_SP:
-              rxlr_eer__wy__count = len(df[HEADER_COUNT_CONDITION & df["WY-domain"].astype(int) == 1])
+              rxlr_eer__wy__count = len(df[(HEADER_COUNT_CONDITION) & (df["WY-domain"].astype(int) == 1)])
               flog_lines.append(f"\t\twith WY-domain: {rxlr_eer__wy__count}\n")
             # shouldn't have CRN
             if "CRN-motif" in HEADERS_WO_SP:
@@ -115,8 +115,9 @@ def main():
                 raise ValueError("One/more sequences with RXLR-EER also has CRN-motif. This shouldn't happen.")
           case match_result if (match_result := re.match("predicted-effectors*", header)):
             # TODO: 2/21/2024
-            efo_wo_motifs = len(df[HEADER_COUNT_CONDITION & ~reduce(lambda x, y: (x | y), make_conditional_identifier(df, False, {s for s in HEADERS_WO_SP if (re.match("predicted-effectors*", s))}))]) # excludes matches with other motifs as well
-            flog_lines[-1] = f"\t{header}: {efo_wo_motifs}\n" # replace efo's initial header string with this one
+            flog_lines.pop()
+            efo = len(df[HEADER_COUNT_CONDITION & ~reduce(lambda x, y: (x | y), make_conditional_identifier(df, False, {s for s in HEADERS_WO_SP if (re.match("predicted-effectors*", s))}))]) # excludes matches with other motifs as well
+            flog_lines.append(f"\t{header}: {efo}\n")
     except ValueError as e:
       print(f"An error occurred: {e}")
       exit(1)
@@ -161,9 +162,11 @@ def main():
     os.remove(summary_log_file)
   with open(summary_log_file, 'w') as flog: flog.writelines(flog_lines)
 
+  print("Done!")
+
   ## print warning to manually update summary log for context
-  print("Warning: Make sure to manually add context (especially for unsupported headers) " +
-        "since statistics may not match the total.")
+  print("Warning: Make sure to validate (especially for unsupported headers) " +
+        "in case statistics may not match the total.")
 
 
 if __name__ == "__main__":
