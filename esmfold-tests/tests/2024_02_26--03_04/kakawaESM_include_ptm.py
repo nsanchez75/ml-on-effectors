@@ -36,6 +36,7 @@ if __name__ == "__main__":
     os.mkdir(OUTDIR)
     
     # import ESM model
+    print("Importing ESM model...")
     model = esm.pretrained.esmfold_v1()
     model = model.eval().cuda()
 
@@ -43,6 +44,7 @@ if __name__ == "__main__":
     results_df = pd.DataFrame(data={"sequence_id": None, "ptm_score": None})
 
     # perform structure predictions based on imported sequences
+    print("Predicting structures...")
     proteins = parse_fasta(INFILE)
     with torch.no_grad():
         for id, sequence in proteins:
@@ -59,4 +61,5 @@ if __name__ == "__main__":
                 fpdb.write(model.output_to_pdb(output)[0])
 
     # construct metadata table
+    print("Constructing metadata table...")
     results_df.to_csv(f"{OUTDIR}/results_metadata.tsv", sep='\t', index=False)
