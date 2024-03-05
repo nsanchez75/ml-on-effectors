@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from time import sleep
 import os
+import pandas as pd
 import torch
 import esm
 
@@ -34,19 +35,28 @@ if __name__ == "__main__":
         sleep(3)
     os.mkdir(OUTDIR)
     
+    # import ESM model
     model = esm.pretrained.esmfold_v1()
     model = model.eval().cuda()
-    proteins = parse_fasta(INFILE)
 
+    # initialize results info dataframe
+    results_df = pd.DataFrame(data={"sequence_id": None, "ptm_score": None})
+
+    # perform structure predictions based on imported sequences
+    proteins = parse_fasta(INFILE)
     with torch.no_grad():
-        for name, sequence in proteins:
+        for id, sequence in proteins:
             chunk_size = set_chunk_size_based_on_length(len(sequence))
             if chunk_size is not None:
                 model.set_chunk_size(chunk_size)
             output = model.infer(sequence,
-                                 num_recycles=3, # hard=coded
+                                 num_recycles=3, # hard-coded
                                  chain_linker="X"*25, # hard-coded
                                  residue_index_offset=512)
             ptm = output["ptm"][0]
-            with open(os.path.join(OUTDIR, f"{name}_{ptm}.pdb"), "w") as f:
-                f.write(model.output_to_pdb(output)[0])
+            results_df.loc[len(results_df)] = [id, ptm]
+            with open(os.path.join(OUTDIR, f"{id}.pdb"), "w") as fpdb:
+                fpdb.write(model.output_to_pdb(output)[0])
+
+    # construct metadata table
+    results_df.to_csv(f"{OUTDIR}/results_metadata.tsv", sep='\t', index=False)
