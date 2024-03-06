@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from time import sleep
 import os
 import pandas as pd
+from shutil import rmtree
 import torch
 import esm
 
@@ -33,6 +34,7 @@ if __name__ == "__main__":
     if os.path.exists(OUTDIR):
         print(f"Warning: Output directory {OUTDIR} detected. Replacing its contents in 3 seconds...")
         sleep(3)
+        rmtree(OUTDIR)
     os.mkdir(OUTDIR)
     
     # import ESM model
