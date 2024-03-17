@@ -36,3 +36,10 @@ python3 01_append_ncbi/add_ncbi_to_table.py
 python3 02_extract_ptm_score/parse_pdb_filenames.py
 python3 03_append_ptm_score/append_ptm_score.py
 ```
+
+## 3/16/2024
+
+```bash
+# done in the directory associated w/ the date
+./blastp_q_on_ORFs.sh af-uniprot-id_uniprot-seq.fasta B_lac-SF5.protein.fasta blastp_output_db_B_lac-SF5_q_blac-uniprot.txt
+```
