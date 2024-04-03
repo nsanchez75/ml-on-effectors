@@ -1,0 +1,10 @@
+
+
+Building a new DB, current time: 03/18/2024 20:06:54
+New DB name:   /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/alphafold-tests/tests/2024_03_16-18/02_identify_missing_entries/af-uniprot-id_uniprot-seq.fasta
+New DB title:  AF Bremia Lactucae Sequences
+Sequence type: Protein
+Keep Linkouts: T
+Keep MBits: T
+Maximum file size: 1000000000B
+Adding sequences from FASTA; added 8951 sequences in 0.863907 seconds.

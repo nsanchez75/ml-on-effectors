@@ -1,0 +1,3 @@
+Auks API init failed : unable to parse configuration file
+/var/spool/slurmd/job61004669/slurm_script: line 16: 719286 Killed                  python3 kakawaESM_include_ptm.py "$1" "$2"
+slurmstepd: error: Detected 1 oom_kill event in StepId=61004669.batch. Some of the step tasks have been OOM Killed.

@@ -1,0 +1,9 @@
+
+ArgumentError: activate does not accept more than one argument:
+['/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/2024_26_02/AF_seqs_to_analyze_in_ESMFold/AF_seqs_to_test.fasta', '/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/2024_26_02/test_outdir']
+
+
+
+real	0m0.776s
+user	0m0.765s
+sys	0m0.905s

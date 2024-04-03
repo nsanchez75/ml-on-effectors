@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "kakawaESM_include_ptm.py", line 29, in <module>
+    model = esm.pretrained.esmfold_v1()
+  File "/toolbox/esm/esm/pretrained.py", line 419, in esmfold_v1
+    import esm.esmfold.v1.pretrained
+  File "/toolbox/esm/esm/esmfold/v1/pretrained.py", line 10, in <module>
+    from esm.esmfold.v1.esmfold import ESMFold
+  File "/toolbox/esm/esm/esmfold/v1/esmfold.py", line 17, in <module>
+    from esm.esmfold.v1.misc import (
+  File "/toolbox/esm/esm/esmfold/v1/misc.py", line 12, in <module>
+    from openfold.np import residue_constants
+ModuleNotFoundError: No module named 'openfold'

@@ -1,0 +1,7 @@
+
+ArgumentError: activate does not accept more than one argument:
+['/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/2024_26_02/AF_seqs_to_analyze_in_ESMFold/AF_seqs_to_test.fasta', '/share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/2024_26_02/test_outdir']
+
+
+/var/spool/slurmd/job61251192/slurm_script: line 25: 3310683 Killed                  python3 kakawaESM_include_ptm.py -i "$1" -o "$2"
+slurmstepd: error: Detected 1 oom_kill event in StepId=61251192.batch. Some of the step tasks have been OOM Killed.

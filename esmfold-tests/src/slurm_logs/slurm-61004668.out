@@ -1,0 +1,4 @@
+  File "kakawaESM_include_ptm.py", line 46
+    with open(os.path.join(output_directory, f"{name}_{ptm}.pdb"), "w") as f:
+                                                               ^
+SyntaxError: invalid syntax
