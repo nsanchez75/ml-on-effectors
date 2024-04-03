@@ -67,4 +67,3 @@ makeblastdb -in af-uniprot-id_uniprot-seq.fasta -title "AF Bremia Lactucae Seque
 blastp -query af-uniprot-id_uniprot-seq.filtered_for_missing.fasta -db af-uniprot-id_uniprot-seq.fasta -outfmt "6 std qcovs" -out blastp_on_missing-seqs.txt
 Rscript tabularize_blastp_output.r blastp_on_missing-seqs.txt
 ```
-
