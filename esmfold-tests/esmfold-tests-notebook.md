@@ -417,3 +417,7 @@ I made sure I got all of the sequences by running this code:
 ```bash
 diff <(ls | awk -F'_' '{print $1}' | sed 's/1$/.1/' | sort) <(awk -F'\t' '{print $1}' ../Bremia-WY_NCBI-ID_seqs.tsv | tail -n +2 | sort)
 ```
+
+## Log
+
+Changed 2024_02_26--03_04 to esmfold_configuration
