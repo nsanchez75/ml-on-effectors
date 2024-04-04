@@ -43,3 +43,11 @@ python3 create_histogram_of_pdbs.py esm_results.tsv
 ```
 
 `create_histogram_of_pdbs.py` was developed, like its name implies, to construct histograms of PDB files (specifically for classification combinations).
+
+## 4/3/2024
+
+Copied `esm_results.tsv` from `2024_03_18` directory and developed `create_violin_plot_of_pdbs.py`.
+
+```bash
+python3 create_violin_plot_of_pdbs.py
+```
