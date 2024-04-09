@@ -1,0 +1,3 @@
+usage: Python script that runs ESM on kakawa [-h] -i INPUT_FASTA
+                                             [-o OUTPUT_DIRECTORY]
+Python script that runs ESM on kakawa: error: argument -i/--input_fasta: expected one argument
