@@ -14,7 +14,7 @@ def main():
   fasta:str       = args.input_fasta
   genome_name:str = args.genome_name
 
-  print(NcbiblastpCommandline(cmd="blastp", database=database, query=fasta, outfmt="6 std qcovs", num_threads=4, out=f"sp_{genome_name}_vs_all.tab"))
+  print(NcbiblastpCommandline(cmd="blastp", db=database, query=fasta, outfmt="6 std qcovs", num_threads=4, out=f"sp_{genome_name}_vs_all.tab"))
 
 
 if __name__ == "__main__":
