@@ -18,8 +18,8 @@ fi
 export TORCH_HOME=/share/siegellab/aian/scripts/torch_cache
 
 # Activate the new conda environment
-# source '/toolbox/softwares/anaconda3/bin/activate'
-# conda activate '/toolbox/envs/esm'
+source '/toolbox/softwares/anaconda3/bin/activate'
+conda activate '/toolbox/envs/esm'
 
 # Run the Python script with the FASTA file path and output directory as arguments
 time python3 kakawaESM_constructs_metadata.py -i $1 -o $2 2> time.log

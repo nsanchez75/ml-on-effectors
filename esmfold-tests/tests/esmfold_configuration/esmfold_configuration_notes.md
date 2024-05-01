@@ -308,3 +308,61 @@ Traceback (most recent call last):
     super(_open_zipfile_reader, self).__init__(torch._C.PyTorchFileReader(name_or_buffer))
 RuntimeError: PytorchStreamReader failed reading zip archive: failed finding central directory
 ```
+
+## 4/10/2024
+
+It ended up working! All I needed to do was run the scripts with the conda environment activation commands in the shell script uncommented. This was done during the meeting with Kelsey.
+
+## 4/11/2024
+
+I am now going to try re-running the script to make sure that everything works perfectly fine still. Here is the script that was run yesterday:
+
+```bash
+./submit_esm.sh AF_seqs_to_analyze_in_ESMFold/two_seqs_to_test.fasta test_outdir_2024_04_11 
+# this is an error that shows up but other than this it is fine
+ArgumentError: activate does not accept more than one argument:
+['AF_seqs_to_analyze_in_ESMFold/two_seqs_to_test.fasta', 'test_outdir_2024_04_11']
+```
+
+Now I am going to try running it on both the public and Siegel GPU partitions:
+
+```bash
+# public partition (ID 61802478)
+sbatch submit_esm.sh /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/esmfold_configuration/AF_seqs_to_analyze_in_ESMFold/two_seqs_to_test.fasta /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/esmfold_configuration/test_outdir_public_partition_2024_04_11  
+```
+
+Error message:
+
+```text
+/var/spool/slurmd/job61802478/slurm_script: line 25: 3490966 Killed                  python3 kakawaESM_constructs_metadata.py -i $1 -o $2 2> time.log
+
+real    0m45.335s
+user    0m18.368s
+sys     0m14.053s
+slurmstepd: error: Detected 1 oom_kill event in StepId=61802478.batch. Some of the step tasks have been OOM Killed.
+```
+
+I have a hunch that maybe the argparse is giving me the errors (maybe bash cannot properly run Python scripts that use argparse) so I created a Python and bash script with the `_non_argparse` suffix.
+
+```bash
+./submit_esm_non_argparse.sh AF_seqs_to_analyze_in_ESMFold/two_seqs_to_test.fasta test_outdir_non_argparse_2024_04_11
+python3 kakawaESM_constructs_metadata
+# which works so now I am going to run with the public SLURM paritition (ID 61802561)
+sbatch submit_esm_non_argparse.sh /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/esmfold_configuration/AF_seqs_to_analyze_in_ESMFold/two_seqs_to_test.fasta /share/rwmwork/nsanc/kelsey_work/ml-on-effectors/esmfold-tests/tests/esmfold_configuration/test_outdir_non_argparse_public_partition_2024_04_11
+```
+
+Here is the error:
+
+```text
+/var/spool/slurmd/job61802561/slurm_script: line 25: 3492598 Killed                  python3 kakawaESM_old_non_argparse.py $1 $2 2> time.log
+
+real    0m44.639s
+user    0m18.432s
+sys     0m13.658s
+slurmstepd: error: Detected 1 oom_kill event in StepId=61802561.batch. Some of the step tasks have been OOM Killed.
+```
+
+So it has nothing to do with argparse.
+
+Since it involves an out-of-memory error, I am going to increase the SLURM mem usage.
+
