@@ -1,0 +1,12 @@
+RXLR String Searches:
+	0: R.LR
+	1: [RKHGQ].[LMYFIV][RNK]
+	2: [GHQ].LR
+	3: R.L[GKQ]
+	4: [RGHQ].L[RGKQ]
+
+EER String Searches:
+	0: [ED][ED][KR]
+
+
+Sequence ID	Lowest-Found RXLR	Highest-Found EER
