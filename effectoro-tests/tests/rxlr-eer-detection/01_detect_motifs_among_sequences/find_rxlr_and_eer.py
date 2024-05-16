@@ -155,26 +155,31 @@ def construct_motif_df(seqs_info:tuple, start:int, num_aas:int)->list[list]:
 
   return pd.DataFrame(dataset)
 
-def analyze_motif_df(df:pd.DataFrame, dir_path:str)->None:
-  # analyze RXLR regexes
-  rxlr_df = df[["seq_ID"] + RXLR_REGEXES]
-  rxlr_counts = rxlr_df.count().rename(index={"seq_ID": "num_sequences"}).to_frame()
-  rxlr_analysis_file = os.path.join(dir_path, "rxlr_analysis.tsv")
-  rxlr_counts.to_csv(rxlr_analysis_file, sep='\t', header=False)
+def get_motif_type_lists(df:pd.DataFrame, dir_path:str)->None:
+  # find sequences for each RXLR type
+  for rxlr_type in RXLR_REGEXES.keys():
+    rxlr_df = df[df[rxlr_type].astype(int) == 1]
+    
+    fpath = os.path.join(dir_path, f"{rxlr_type}_seqs.txt")
+    with open(fpath, 'w') as fout:
+      fout.write(f"# regex: {RXLR_REGEXES[rxlr_type]}\n")
+      fout.writelines([f"{_}\n" for _ in rxlr_df["seq_ID"].values])
 
-  # analyze EER regexes
-  eer_df = df[["seq_ID"] + EER_REGEXES]
-  eer_counts = eer_df.count().rename(index={"seq_ID": "num_sequences"}).to_frame()
-  eer_analysis_file = os.path.join(dir_path, "eer_analysis.tsv")
-  eer_counts.to_csv(eer_analysis_file, sep='\t', header=False)
+  # find sequences for each EER type
+  for eer_type in EER_REGEXES.keys():
+    eer_df = df[df[eer_type].astype(int) == 1]
+    
+    fpath = os.path.join(dir_path, f"{eer_type}_seqs.txt")
+    with open(fpath, 'w') as fout:
+      fout.write(f"# regex: {EER_REGEXES[eer_type]}\n")
+      fout.writelines([f"{_}\n" for _ in eer_df["seq_ID"].values])
 
-  # get list of sequences that contain both RXLR and EER
-  rxlr_and_eer_df = df[["seq_ID", "valid_rxlr_and_eer"]][df["valid_rxlr_and_eer"].astype(bool) == True]
-  rxlr_and_eer_seqs_file = os.path.join(dir_path, "seqs_with_rxlr_and_eer.txt")
-  with open(rxlr_and_eer_seqs_file, 'w') as fo:
-    fo_lines = ["# sequences that contain an RXLR motif before an EER motif"] + rxlr_and_eer_df["seq_ID"].values.tolist()
-    fo_lines = [line + '\n' for line in fo_lines]
-    fo.writelines(fo_lines)
+  # find sequences that contain RXLR-EER
+  rxlr_eer_seqs = df[df["valid_rxlr_and_eer"].astype(int) == 1]
+  fpath = os.path.join(dir_path, "rxlr_and_eer_seqs.txt")
+  with open(fpath, 'w') as fout:
+    fout.writelines([f"{_}\n" for _ in rxlr_eer_seqs["seq_ID"].values])
+
 
 def main():
   # initialize arguments
@@ -197,7 +202,7 @@ def main():
   motif_df = construct_motif_df(sequences, start=START_INDEX, num_aas=NUM_AAS_SEARCHED)
 
   # perform analyses
-  # analyze_motif_df(motif_df, DIR)
+  get_motif_type_lists(motif_df, DIR)
 
   # write dataframe to file
   fout = os.path.join(DIR, "rxlr_eer_motifs.tsv")
